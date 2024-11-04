@@ -6,13 +6,13 @@ typedef struct {
 } Date;
 typedef struct  {
     int id;
-    char title[255];
+    char* title;
     char** authors;
-    char publisher[100];
+    char* publisher;
     Date pubDate;
     int pages;
     int qty;
 } Book;
 
 Book* fetchBooks(char*);
-void displayBooks();
+void displayBooks(Book *);
