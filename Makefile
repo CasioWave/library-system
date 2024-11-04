@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-Wall -Wextra
 TARGET=lms
 MAIN=main.c
 OBJS=ui.o library.o login.o
