@@ -21,5 +21,12 @@ int main() {
     CSV books;
     fp = fopen("books-clean.csv", "r");
     books = readCSV(fp);
+    printf("Successfully read %d rows and %d columns from the CSV file.\nBelow are the first 10 entries.\n", books.nrows, books.ncols);
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < books.ncols; ++j) {
+            printf("%s\t", books.data[i][j]);
+        }
+        printf("\n");
+    }
     return 0;
 }

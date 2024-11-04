@@ -5,7 +5,6 @@
 
 #define MAXCHAR 4000
 
-
 CSV readCSV(FILE * fp) {
     CSV csv;
     char row[MAXCHAR];
@@ -28,19 +27,17 @@ CSV readCSV(FILE * fp) {
             if (r > 1) {
                 csv.data = reallocarray(csv.data, r, sizeof(char**));
             }
-            csv.data[r] = calloc(c, sizeof(char *));
+            csv.data[r - 1] = calloc(c, sizeof(char *));
             int cid = 0;
             while (cell != NULL) {
-                strcpy(csv.data[r][cid], cell);
+                csv.data[r - 1][cid] = strdup(cell);
                 cell = strtok(NULL, ",");
                 cid++;
             }
         }
-        printf("\n");
         r++;
     }
     csv.nrows = r - 1;
     csv.ncols = c;
     return csv;
 }
-
