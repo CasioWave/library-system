@@ -6,15 +6,20 @@
 #include "ui.h"
 #include "library.h"
 #include "login.h"
+#include "utils.h"
 
 
 int main() {
-    enableRawMode();
+    /* enableRawMode(); */
     
-    while(1) {
-        refreshScreen();
-        handleKeyPress();
-    }
-    disableRawMode();
+    /* while(1) { */
+    /*     refreshScreen(); */
+    /*     handleKeyPress(); */
+    /* } */
+    /* disableRawMode(); */
+    FILE* fp;
+    CSV books;
+    fp = fopen("books-clean.csv", "r");
+    books = readCSV(fp);
     return 0;
 }

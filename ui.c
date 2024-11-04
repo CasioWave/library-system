@@ -109,7 +109,3 @@ void refreshScreen() {
     resetScreen();
 }
 
-void mvCursorTo(int x, int y) {
-    // TODO
-    // add the escape sequence
-}
