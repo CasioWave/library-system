@@ -1,4 +1,7 @@
+#include <ctype.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
 
 #include "ui.h"
 #include "library.h"
@@ -6,9 +9,12 @@
 
 
 int main() {
-    printf("main.c\n");
-    helloFromUi();
-    helloFromLibrary();
-    helloFromLogin();
+    enableRawMode();
+    
+    while(1) {
+        refreshScreen();
+        handleKeyPress();
+    }
+    disableRawMode();
     return 0;
 }
