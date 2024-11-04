@@ -1,7 +1,11 @@
-#include<stdio.h>
-
+#include "utils.h"
 #include "library.h"
+#include <stdio.h>
 
-void helloFromLibrary() {
-    printf("Hello from Library\n");
+Book* fetchBooks(char * fname) {
+    return NULL;
+}
+
+void displayBooks() {
+    return;
 }
