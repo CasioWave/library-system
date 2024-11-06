@@ -1,26 +1,9 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #define MAXPRIME 1000
-
-unsigned long int returnRandom(unsigned long int min, unsigned long int max);
-unsigned long int diff(unsigned long int x, unsigned long int y);
-unsigned long int gcd(unsigned long int x, unsigned long int y);
-int setkeys();
-unsigned long int encrypt(unsigned long int msg);
-unsigned long int decrypt(unsigned long int enc_text);
-
+#include "rsa.h"
 unsigned long int n;
 unsigned long int public_key, private_key;
-
-int main(){
-    int i = setkeys();
-    printf("The keys are set!\n");
-    char msg = 'A';
-    unsigned long int enc = encrypt(msg);
-    printf("The encrypted text is -> %ld\n", enc);
-    printf("The decrypted message is -> %c\n", (int)decrypt(enc));
-}
 
 unsigned long int encrypt(unsigned long int msg){
     int e = public_key;
