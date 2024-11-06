@@ -41,3 +41,19 @@ CSV readCSV(FILE * fp) {
     csv.ncols = c;
     return csv;
 }
+
+// Writes the data from a CSV Struct at row,col to a string read
+int readData(CSV data, int row, int col, char read[])
+{
+	int c;
+
+	for (c = 0; *(data.data[row][col]+c) != '\0'; ++c)
+	{
+		read[c] = *(data.data[row][col]+c);
+	}
+
+	read[c] = *(data.data[row][col]+c);
+	++c;
+
+	return c;
+}
