@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define MAXPRIME 1000000
+#define MAXPRIME 1000
 
 unsigned long int returnRandom(unsigned long int min, unsigned long int max);
 unsigned long int diff(unsigned long int x, unsigned long int y);
@@ -45,7 +45,7 @@ unsigned long int decrypt(unsigned long int enc){
 
 int setkeys(){
     short num[MAXPRIME];
-    unsigned long int primes[10000];
+    unsigned long int primes[1000];
 
     //Initialise the array
     unsigned long int i,j = 0;
