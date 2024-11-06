@@ -37,11 +37,11 @@ void enableRawMode() {
 
 void die(char *s) {
     resetScreen();
-    disableRawMode();
     perror(s);
     exit(1);
 }
 void disableRawMode() {
+    write(STDOUT_FILENO, "\x1b[?25h", 6); 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_term) == -1) die("tcsetattr");
 }
 int readKeyPress() {
@@ -105,6 +105,9 @@ void handleKeyPress() {
         case ARROW_RIGHT:
             moveCursor(c);
             break;
+        case '\r':
+            moveCursor(ARROW_DOWN);
+            break;
         default:
             break;
     }
@@ -127,7 +130,7 @@ void moveCursor(int c) {
     }
     return;
 }
-void editorAppendRow(char *s, size_t len) {
+void appendRow(char *s, size_t len) {
     E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
     int at = E.numrows;
     E.row[at].size = len;
@@ -139,7 +142,9 @@ void editorAppendRow(char *s, size_t len) {
 void renderBooks() {
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
     for (int i = 0; i < E.nbooks; ++i) {
-        editorAppendRow(E.books[i].publisher, strlen(E.books[i].publisher));
+        char rec[320];
+        int len = snprintf(rec, sizeof(rec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", i, E.books[i].title, E.books[i].authors, E.books[i].publisher, E.books[i].qty);
+        appendRow(rec, len);
     }
 }
 void statusBar() {
@@ -156,12 +161,23 @@ void statusBar() {
     write(STDOUT_FILENO, buf, lenBuf);
     write(STDOUT_FILENO, "\x1b[m", 3);
     write(STDOUT_FILENO, "\r\n", 2);
+}
 
+void topBar() {
+    write(STDOUT_FILENO, "\x1b[7m", 4);
+    char top[320];
+    int len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
+    write(STDOUT_FILENO, top, len);
+    for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
+    write(STDOUT_FILENO, "\x1b[m", 3);
+    write(STDOUT_FILENO, "\r\n", 2);
 }
 void drawRows() {
     for (int y = 0 ; y < E.screenrows; ++y) {
         int filerow = y + E.rowoff;
+        if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
         write(STDOUT_FILENO, E.row[filerow].chars, E.row[filerow].size);
+        if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
         write(STDOUT_FILENO, "\x1b[K", 3);
         write(STDOUT_FILENO, "\r\n", 2);
     }
@@ -192,10 +208,11 @@ void refreshScreen() {
     scroll();
     write(STDOUT_FILENO, "\x1b[?25l", 6);
     resetScreen();
+    topBar();
     drawRows();
     statusBar();
     goToxy(E.cx, E.cy - E.rowoff);
-    write(STDOUT_FILENO, "\x1b[?25h", 6);
+    /* write(STDOUT_FILENO, "\x1b[?25h", 6); */
     return;
 }
 

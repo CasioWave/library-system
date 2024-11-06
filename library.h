@@ -7,7 +7,7 @@ typedef struct {
 typedef struct  {
     int id;
     char* title;
-    char** authors;
+    char* authors;
     char* publisher;
     Date pubDate;
     int pages;

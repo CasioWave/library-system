@@ -37,6 +37,7 @@ int getWindowSize(int *, int *);
 int getCursorPosition(int*, int*);
 void drawRows();
 void renderBooks();
-void editorAppendRow(char*, size_t);
+void appendRow(char*, size_t);
 void scroll();
 void statusBar();
+void topBar();
