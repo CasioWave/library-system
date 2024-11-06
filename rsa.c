@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define MAXPRIME 100000
+#define MAXPRIME 1000000
 
 unsigned long int returnRandom(unsigned long int min, unsigned long int max);
 unsigned long int diff(unsigned long int x, unsigned long int y);

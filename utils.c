@@ -57,3 +57,20 @@ int readData(CSV data, int row, int col, char read[])
 
 	return c;
 }
+
+int pickler(CSV data, char file[]){
+    int i, j = 0;
+    FILE *fl;
+    fl = fopen(file, "w");
+    char temp[MAXCHAR];
+    for (i = 0; i < data.nrows; ++i){
+        for (j = 0; j < data.ncols; ++j){
+            readData(data, j, i, temp);
+            fprintf(fl, temp);
+            fprintf(fl, ",");
+        }
+        fprintf(fl, "\n");
+    }
+    fclose(fl);
+    return 0;
+}
