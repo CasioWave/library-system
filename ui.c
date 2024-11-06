@@ -7,6 +7,7 @@
 
 #include "ui.h"
 #include "library.h"
+#include "login.h"
 
 struct state {
     int cx, cy, screenrows, screencols, numrows, rowoff;
@@ -14,6 +15,8 @@ struct state {
     struct termios orig_term;
     Book* books;
     int nbooks;
+    char* username;
+    int userPriv;
 };
 struct state E;
 
@@ -145,11 +148,14 @@ void statusBar() {
     int len = snprintf(status, sizeof(status), "Library Management System");
     if (len > E.screencols) len = E.screencols;
     write(STDOUT_FILENO, status, len);
-  while (len < E.screencols) {
-    write(STDOUT_FILENO, " ", 1);
-    len++;
-  }
+    char buf[255];
+    int lenBuf = snprintf(buf, sizeof(buf), "Logged in as: '%s' [%d]", E.username, E.userPriv);
+    for (int i = 0; i < E.screencols - len - lenBuf;++i) {
+        write(STDOUT_FILENO, " ", 1);
+    }
+    write(STDOUT_FILENO, buf, lenBuf);
     write(STDOUT_FILENO, "\x1b[m", 3);
+    write(STDOUT_FILENO, "\r\n", 2);
 
 }
 void drawRows() {
@@ -195,6 +201,11 @@ void refreshScreen() {
 
 void init() {
     E.rowoff = E.cx = E.cy = E.numrows = 0;
+    if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
+        printf("Login Failed!!");
+        exit(1);
+        return;
+    }
     renderBooks();
     enableRawMode();
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
