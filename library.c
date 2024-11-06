@@ -13,10 +13,9 @@ enum bookDataFields  {
     PUBLISHER,
     QTY
 };
-
 int NBOOKS;
 
-Book* fetchBooks(char * fname) {
+Book* fetchBooks(char * fname, int* nbooks) {
     Book* books;
     FILE* fp;
 
@@ -24,7 +23,9 @@ Book* fetchBooks(char * fname) {
     CSV bookData;
 
     bookData = readCSV(fp);
+    fclose(fp);
     NBOOKS = bookData.nrows;
+    *nbooks = NBOOKS;
     books = calloc(bookData.nrows, sizeof(Book));
 
     for (int i = 0; i < bookData.nrows; ++i) {

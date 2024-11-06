@@ -6,18 +6,22 @@
 #include <unistd.h>
 
 #include "ui.h"
+#include "library.h"
 
-struct termios orig_term;
 struct state {
-    int cx, cy, screenrows, screencols;
+    int cx, cy, screenrows, screencols, numrows, rowoff;
+    erow* row;
+    struct termios orig_term;
+    Book* books;
+    int nbooks;
 };
 struct state E;
 
 void enableRawMode() {
-    if (tcgetattr(STDIN_FILENO, &orig_term) == -1) die("tcgetattr");
+    if (tcgetattr(STDIN_FILENO, &E.orig_term) == -1) die("tcgetattr");
     atexit(disableRawMode);
 
-    struct termios raw = orig_term;
+    struct termios raw = E.orig_term;
 
     raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
     raw.c_iflag &= ~(IXON | ICRNL);
@@ -35,7 +39,7 @@ void die(char *s) {
     exit(1);
 }
 void disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_term) == -1) die("tcsetattr");
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_term) == -1) die("tcsetattr");
 }
 int readKeyPress() {
     int nread;
@@ -109,7 +113,7 @@ void moveCursor(int c) {
             if (E.cy > 0) E.cy--;
             break;
         case ARROW_DOWN:
-            if (E.cy < E.screenrows) E.cy++;
+            if (E.cy < E.numrows) E.cy++;
             break;
         case ARROW_LEFT:
             if (E.cx > 0) E.cx--;
@@ -120,7 +124,52 @@ void moveCursor(int c) {
     }
     return;
 }
+void editorAppendRow(char *s, size_t len) {
+    E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
+    int at = E.numrows;
+    E.row[at].size = len;
+    E.row[at].chars = malloc(len + 1);
+    memcpy(E.row[at].chars, s, len);
+    E.row[at].chars[len] = '\0';
+    E.numrows++;
+}
+void renderBooks() {
+    E.books = fetchBooks("books-clean.csv", &E.nbooks);
+    for (int i = 0; i < E.nbooks; ++i) {
+        editorAppendRow(E.books[i].publisher, strlen(E.books[i].publisher));
+    }
+}
+void statusBar() {
+    write(STDOUT_FILENO, "\x1b[7m", 4);
+    char status[80];
+    int len = snprintf(status, sizeof(status), "Library Management System");
+    if (len > E.screencols) len = E.screencols;
+    write(STDOUT_FILENO, status, len);
+  while (len < E.screencols) {
+    write(STDOUT_FILENO, " ", 1);
+    len++;
+  }
+    write(STDOUT_FILENO, "\x1b[m", 3);
 
+}
+void drawRows() {
+    for (int y = 0 ; y < E.screenrows; ++y) {
+        int filerow = y + E.rowoff;
+        write(STDOUT_FILENO, E.row[filerow].chars, E.row[filerow].size);
+        write(STDOUT_FILENO, "\x1b[K", 3);
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+}
+
+void scroll() {
+    if (E.cy < E.rowoff) {
+        E.rowoff = E.cy;
+        return;
+    }
+    if (E.cy >= E.rowoff + E.screenrows) {
+        E.rowoff = E.cy - E.screenrows + 1;
+    }
+}
 void goToxy(int x, int y) {
     char buf[32];
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH", y, x);
@@ -134,16 +183,22 @@ void resetScreen() {
 }
 
 void refreshScreen() {
+    scroll();
     write(STDOUT_FILENO, "\x1b[?25l", 6);
-    goToxy(E.cx, E.cy);
+    resetScreen();
+    drawRows();
+    statusBar();
+    goToxy(E.cx, E.cy - E.rowoff);
     write(STDOUT_FILENO, "\x1b[?25h", 6);
     return;
 }
 
 void init() {
-    E.cx = E.cy = 0;
+    E.rowoff = E.cx = E.cy = E.numrows = 0;
+    renderBooks();
     enableRawMode();
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
+    E.screenrows -= 5;
     resetScreen();
 }
 

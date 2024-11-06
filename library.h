@@ -14,5 +14,5 @@ typedef struct  {
     int qty;
 } Book;
 
-Book* fetchBooks(char*);
+Book* fetchBooks(char*, int*);
 void displayBooks(Book *);

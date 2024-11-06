@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+
 #define CTRL_Key(x) (x & 31)
 
 enum cursorKeys {
@@ -16,6 +18,11 @@ enum cursorKeys {
     DEL_KEY
 };
 
+typedef struct erow {
+  int size;
+  char *chars;
+} erow;
+
 void disableRawMode();
 void enableRawMode();
 void die(char *);
@@ -28,3 +35,8 @@ void goToxy(int, int);
 void init();
 int getWindowSize(int *, int *);
 int getCursorPosition(int*, int*);
+void drawRows();
+void renderBooks();
+void editorAppendRow(char*, size_t);
+void scroll();
+void statusBar();
