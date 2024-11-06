@@ -8,6 +8,5 @@ int main() {
         refreshScreen();
         handleKeyPress();
     }
-    disableRawMode();
     return 0;
 }
