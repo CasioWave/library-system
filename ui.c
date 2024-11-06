@@ -1,3 +1,5 @@
+#include <string.h>
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -6,6 +8,10 @@
 #include "ui.h"
 
 struct termios orig_term;
+struct state {
+    int cx, cy, screenrows, screencols;
+};
+struct state E;
 
 void enableRawMode() {
     if (tcgetattr(STDIN_FILENO, &orig_term) == -1) die("tcgetattr");
@@ -92,11 +98,33 @@ void handleKeyPress() {
         case ARROW_RIGHT:
             moveCursor(c);
             break;
+        default:
+            break;
     }
 }
 
 void moveCursor(int c) {
-    //DO something
+    switch (c) {
+        case ARROW_UP:
+            if (E.cy > 0) E.cy--;
+            break;
+        case ARROW_DOWN:
+            if (E.cy < E.screenrows) E.cy++;
+            break;
+        case ARROW_LEFT:
+            if (E.cx > 0) E.cx--;
+            break;
+        case ARROW_RIGHT:
+            if (E.cx < E.screencols) E.cx++;
+            break;
+    }
+    return;
+}
+
+void goToxy(int x, int y) {
+    char buf[32];
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", y, x);
+    write(STDOUT_FILENO, buf, strlen(buf));
     return;
 }
 
@@ -106,6 +134,42 @@ void resetScreen() {
 }
 
 void refreshScreen() {
+    write(STDOUT_FILENO, "\x1b[?25l", 6);
+    goToxy(E.cx, E.cy);
+    write(STDOUT_FILENO, "\x1b[?25h", 6);
+    return;
+}
+
+void init() {
+    E.cx = E.cy = 0;
+    enableRawMode();
+    if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
     resetScreen();
 }
 
+int getWindowSize(int *rows, int *cols) {
+    struct winsize ws;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+        if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B", 12) != 12) return -1;
+        return getCursorPosition(rows, cols);
+    } else {
+        *cols = ws.ws_col;
+        *rows = ws.ws_row;
+        return 0;
+    }
+}
+
+int getCursorPosition(int *rows, int *cols) {
+    char buf[32];
+    unsigned int i = 0;
+    if (write(STDOUT_FILENO, "\x1b[6n", 4) != 4) return -1;
+    while (i < sizeof(buf) - 1) {
+        if (read(STDIN_FILENO, &buf[i], 1) != 1) break;
+        if (buf[i] == 'R') break;
+        i++;
+    }
+    buf[i] = '\0';
+    if (buf[0] != '\x1b' || buf[1] != '[') return -1;
+    if (sscanf(&buf[2], "%d;%d", rows, cols) != 2) return -1;
+    return 0;
+}

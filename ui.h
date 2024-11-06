@@ -24,3 +24,7 @@ void handleKeyPress();
 void moveCursor(int);
 void refreshScreen();
 void resetScreen();
+void goToxy(int, int);
+void init();
+int getWindowSize(int *, int *);
+int getCursorPosition(int*, int*);

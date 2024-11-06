@@ -8,14 +8,13 @@
 #include "login.h"
 
 int main() {
-    /* enableRawMode(); */
-    
-    /* while(1) { */
-    /*     refreshScreen(); */
-    /*     handleKeyPress(); */
-    /* } */
-    /* disableRawMode(); */
-    Book* books = fetchBooks("books-clean.csv");
-    displayBooks(books);
+    init();
+    while(1) {
+        refreshScreen();
+        handleKeyPress();
+    }
+    disableRawMode();
+    /* Book* books = fetchBooks("books-clean.csv"); */
+    /* displayBooks(books); */
     return 0;
 }
