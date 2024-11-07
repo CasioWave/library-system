@@ -42,3 +42,8 @@ void scroll();
 void statusBar();
 void topBar();
 void drawBook();
+void drawCommand();
+void drawHelp();
+char* commandPrompt(char*);
+void setCommandMsg(const char*, ...);
+void searchPrompt();

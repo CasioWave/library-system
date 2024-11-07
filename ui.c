@@ -1,14 +1,18 @@
+#include <stdarg.h>
+#include <ctype.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "ui.h"
 #include "library.h"
 #include "login.h"
 
+#define MSGTIMEOUT 3
 #define MAXCHARLIM 1000
 
 enum PAGES {
@@ -25,6 +29,8 @@ struct state {
     char* username;
     int userPriv;
     int page;
+    char commandBuf[MAXCHARLIM];
+    time_t commandTime;
 };
 struct state E;
 
@@ -111,13 +117,17 @@ void handleKeyPress() {
         case ARROW_DOWN:
         case ARROW_LEFT:
         case ARROW_RIGHT:
-            if (E.page == NORMAL) moveCursor(c);
+            moveCursor(c);
             break;
         case '\r':
             E.page = BOOK_VIEW;
             break;
         case '\x1b':
             E.page = NORMAL;
+            break;
+        case '/':
+            if (E.page == NORMAL) searchPrompt();
+            break;
         default:
             break;
     }
@@ -214,9 +224,86 @@ void drawBook() {
     len = snprintf(bookQty, sizeof(bookQty), "\x1b[33mCopies Available:\x1b[m %d\r\n", E.books[E.cy].qty);
     write(STDOUT_FILENO, bookQty, len);
     write(STDOUT_FILENO, "\x1b[m", 4);
-    for (int y = 0 ; y < E.screenrows - 7; ++y) {
+    for (int y = 0 ; y < E.screenrows - 6; ++y) {
         write(STDOUT_FILENO, "\r\n", 2);
     }
+}
+
+void drawCommand() {
+    char buf[MAXCHARLIM];
+    int len = 0;
+    write(STDOUT_FILENO, "\x1b[33m", 5);
+    if (time(NULL) - E.commandTime < MSGTIMEOUT) {
+        len = snprintf(buf, sizeof(buf), "%s\r\n", E.commandBuf);
+    } else {
+        len = snprintf(buf, sizeof(buf), "Press / to start a search\r\n");
+    }
+    write(STDOUT_FILENO, buf, len);
+    write(STDOUT_FILENO, "\x1b[0m", 4);
+}
+
+void setCommandMsg(const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(E.commandBuf, sizeof(E.commandBuf), fmt, ap);
+    va_end(ap);
+    E.commandTime = time(NULL);
+}
+void drawHelp() {
+    char buf[MAXCHARLIM];
+    int len = 0;
+    write(STDOUT_FILENO, "\x1b[32m", 5);
+    if (E.page == NORMAL) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details\r\n");
+    if (E.page == BOOK_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
+    write(STDOUT_FILENO, buf, len);
+    write(STDOUT_FILENO, "\x1b[0m", 4);
+}
+
+char *commandPrompt(char *prompt) {
+    size_t bufsize = MAXCHARLIM;
+    char *buf = (char*) malloc(bufsize);
+
+    size_t buflen = 0;
+    buf[0] = '\0';
+    
+    while (1) {
+        setCommandMsg(prompt, buf);
+        refreshScreen();
+
+        int c = readKeyPress();
+        if (c == BACKSPACE || c == CTRL_Key('h')) {
+            if (buflen != 0) buf[--buflen] = '\0';
+        } else if (c == '\x1b') {
+            setCommandMsg("");
+            free(buf);
+            return NULL;
+        } else if (c == '\r') {
+            if (buflen != 0) {
+                setCommandMsg("");
+                return buf;
+            }
+        } else if(!iscntrl(c) && c < 128) {
+            if (buflen == bufsize - 1) {
+                bufsize *= 2;
+                buf = realloc(buf, bufsize);
+            }
+            buf[buflen++] = c;
+            buf[buflen] = '\0';
+        }
+    }
+}
+
+void searchPrompt() {
+    // This is a dummy search to test the command prompt feature.
+    char* searchStr = NULL;
+    searchStr = commandPrompt("Search: %s");
+    if (searchStr == NULL) {
+        setCommandMsg("Search Aborted.");
+        return;
+    }
+    int len = strlen(searchStr);
+    while (searchStr[len - 1] == ' ' || searchStr[len - 1] == '\t') searchStr[--len] = '\0';
+    setCommandMsg("You searched for: %s", searchStr);
 }
 
 void scroll() {
@@ -248,6 +335,8 @@ void refreshScreen() {
     if (E.page == NORMAL) drawRows();
     if (E.page == BOOK_VIEW) drawBook();
     statusBar();
+    drawCommand();
+    drawHelp();
     goToxy(E.cx, E.cy - E.rowoff);
     /* write(STDOUT_FILENO, "\x1b[?25h", 6); */
     return;
@@ -255,6 +344,8 @@ void refreshScreen() {
 
 void init() {
     E.page = E.rowoff = E.cx = E.cy = E.numrows = 0;
+    snprintf(E.commandBuf, sizeof(E.commandBuf), "Press / to start a search");
+    E.commandTime = time(NULL);
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
         printf("Login Failed!!");
         exit(1);
