@@ -41,3 +41,4 @@ void appendRow(char*, size_t);
 void scroll();
 void statusBar();
 void topBar();
+void drawBook();

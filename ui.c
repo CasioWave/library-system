@@ -9,6 +9,13 @@
 #include "library.h"
 #include "login.h"
 
+#define MAXCHARLIM 1000
+
+enum PAGES {
+    NORMAL=0,
+    BOOK_VIEW
+};
+
 struct state {
     int cx, cy, screenrows, screencols, numrows, rowoff;
     erow* row;
@@ -17,6 +24,7 @@ struct state {
     int nbooks;
     char* username;
     int userPriv;
+    int page;
 };
 struct state E;
 
@@ -103,11 +111,13 @@ void handleKeyPress() {
         case ARROW_DOWN:
         case ARROW_LEFT:
         case ARROW_RIGHT:
-            moveCursor(c);
+            if (E.page == NORMAL) moveCursor(c);
             break;
         case '\r':
-            moveCursor(ARROW_DOWN);
+            E.page = BOOK_VIEW;
             break;
+        case '\x1b':
+            E.page = NORMAL;
         default:
             break;
     }
@@ -148,7 +158,7 @@ void renderBooks() {
     }
 }
 void statusBar() {
-    write(STDOUT_FILENO, "\x1b[7m", 4);
+    write(STDOUT_FILENO, "\x1b[1;7m", 6);
     char status[80];
     int len = snprintf(status, sizeof(status), "Library Management System");
     if (len > E.screencols) len = E.screencols;
@@ -164,10 +174,16 @@ void statusBar() {
 }
 
 void topBar() {
-    write(STDOUT_FILENO, "\x1b[7m", 4);
+    write(STDOUT_FILENO, "\x1b[1;7m", 6);
     char top[320];
-    int len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
-    write(STDOUT_FILENO, top, len);
+    int len;
+    if (E.page == NORMAL) {
+        len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
+        write(STDOUT_FILENO, top, len);
+    } else if (E.page == BOOK_VIEW) {
+        len = snprintf(top, sizeof(top), "Book Details");
+        write(STDOUT_FILENO, top, len);
+    }
     for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
     write(STDOUT_FILENO, "\x1b[m", 3);
     write(STDOUT_FILENO, "\r\n", 2);
@@ -179,6 +195,26 @@ void drawRows() {
         write(STDOUT_FILENO, E.row[filerow].chars, E.row[filerow].size);
         if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
         write(STDOUT_FILENO, "\x1b[K", 3);
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+}
+
+void drawBook() {
+    char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookPublisher[MAXCHARLIM], bookPages[MAXCHARLIM], bookQty[MAXCHARLIM];
+    int len = snprintf(bookID, sizeof(bookID), "\x1b[33mBook ID:\x1b[m %d\r\n", E.books[E.cy].id);
+    write(STDOUT_FILENO, bookID, len);
+    len = snprintf(bookTitle, sizeof(bookTitle), "\x1b[33mBook Title:\x1b[m %s\r\n", E.books[E.cy].title);
+    write(STDOUT_FILENO, bookTitle, len);
+    len = snprintf(bookAuthor, sizeof(bookAuthor), "\x1b[33mAuthor(s):\x1b[m %s\r\n", E.books[E.cy].authors);
+    write(STDOUT_FILENO, bookAuthor, len);
+    len = snprintf(bookPublisher, sizeof(bookPublisher), "\x1b[33mPublisher:\x1b[m %s\r\n", E.books[E.cy].publisher);
+    write(STDOUT_FILENO, bookPublisher, len);
+    len = snprintf(bookPages, sizeof(bookPages), "\x1b[33mNumber of Pages:\x1b[m %d\r\n", E.books[E.cy].pages);
+    write(STDOUT_FILENO, bookPages, len);
+    len = snprintf(bookQty, sizeof(bookQty), "\x1b[33mCopies Available:\x1b[m %d\r\n", E.books[E.cy].qty);
+    write(STDOUT_FILENO, bookQty, len);
+    write(STDOUT_FILENO, "\x1b[m", 4);
+    for (int y = 0 ; y < E.screenrows - 7; ++y) {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
@@ -209,7 +245,8 @@ void refreshScreen() {
     write(STDOUT_FILENO, "\x1b[?25l", 6);
     resetScreen();
     topBar();
-    drawRows();
+    if (E.page == NORMAL) drawRows();
+    if (E.page == BOOK_VIEW) drawBook();
     statusBar();
     goToxy(E.cx, E.cy - E.rowoff);
     /* write(STDOUT_FILENO, "\x1b[?25h", 6); */
@@ -217,7 +254,7 @@ void refreshScreen() {
 }
 
 void init() {
-    E.rowoff = E.cx = E.cy = E.numrows = 0;
+    E.page = E.rowoff = E.cx = E.cy = E.numrows = 0;
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
         printf("Login Failed!!");
         exit(1);
