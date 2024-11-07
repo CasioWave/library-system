@@ -9,3 +9,5 @@ typedef struct {
 } CSV;
 
 CSV readCSV(FILE *);
+int readData(CSV data, int row, int col, char read[]);
+int pickler(CSV data, char file[]);

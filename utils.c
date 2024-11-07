@@ -45,7 +45,7 @@ CSV readCSV(FILE * fp) {
 // Writes the data from a CSV Struct at row,col to a string read
 int readData(CSV data, int row, int col, char read[])
 {
-	int c;
+	int c = 0;
 
 	for (c = 0; *(data.data[row][col]+c) != '\0'; ++c)
 	{
@@ -54,6 +54,26 @@ int readData(CSV data, int row, int col, char read[])
 
 	read[c] = *(data.data[row][col]+c);
 	++c;
+	printf("%s\n",read);
 
 	return c;
+}
+
+int pickler(CSV data, char file[]){
+    int i, j = 0;
+    FILE *fl;
+    fl = fopen(file, "w");
+    char temp[MAXCHAR];
+    for (i = 0; i < data.nrows; ++i){
+        for (j = 0; j < data.ncols; ++j){
+            readData(data, i, j, temp);
+            fprintf(fl, temp);
+            if (j==data.ncols-1){
+                continue;
+            }
+            fprintf(fl, ",");
+        }
+    }
+    fclose(fl);
+    return 0;
 }
