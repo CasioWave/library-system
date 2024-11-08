@@ -49,20 +49,5 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
             (*idx)[c++] = i;
         }
     }
-    for (int i = 0; i < nbooks; ++i) {
-        if (strcasestr((*books)[i].authors, searchStr) != NULL) {
-            c++;
-            if (*idx == NULL) *idx = calloc(c + 1, sizeof(int));
-            else *idx = reallocarray(*idx, c + 1, sizeof(int));
-            (*idx)[c++] = i;
-        }
-    }
-    for (int i = 0; i < nbooks; ++i) {
-        if (strcasestr((*books)[i].publisher, searchStr) != NULL) {
-            if (*idx == NULL) *idx = calloc(c + 1, sizeof(int));
-            else *idx = reallocarray(*idx, c + 1, sizeof(int));
-            (*idx)[c++] = i;
-        }
-    }
     *numResults = c;
 }
