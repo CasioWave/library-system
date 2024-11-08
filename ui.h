@@ -47,3 +47,6 @@ void drawHelp();
 char* commandPrompt(char*);
 void setCommandMsg(const char*, ...);
 void searchPrompt();
+void appendSearchRow(char*, size_t);
+void renderSearchResults();
+void drawSearchResults();
