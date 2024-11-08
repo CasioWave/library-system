@@ -15,4 +15,4 @@ typedef struct  {
 } Book;
 
 Book* fetchBooks(char*, int*);
-void displayBooks(Book *);
+void search(int** idx, int *numResults, Book** books, int nbooks, char* searchStr);

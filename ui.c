@@ -303,7 +303,10 @@ void searchPrompt() {
     }
     int len = strlen(searchStr);
     while (searchStr[len - 1] == ' ' || searchStr[len - 1] == '\t') searchStr[--len] = '\0';
-    setCommandMsg("You searched for: %s", searchStr);
+    int* idx;
+    int numResults = 0;
+    search(&idx, &numResults, &E.books, E.nbooks, searchStr);
+    setCommandMsg("You searched for: %s, %d matches found %d", searchStr, numResults, idx[0]);
 }
 
 void scroll() {
