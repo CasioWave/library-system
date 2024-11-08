@@ -17,12 +17,14 @@
 
 enum PAGES {
     NORMAL=0,
-    BOOK_VIEW
+    BOOK_VIEW,
+    SEARCH
 };
 
 struct state {
-    int cx, cy, screenrows, screencols, numrows, rowoff;
+    int numSRows, cx, cy, screenrows, screencols, numrows, rowoff, numResults;
     erow* row;
+    erow* sRow;
     struct termios orig_term;
     Book* books;
     int nbooks;
@@ -31,6 +33,7 @@ struct state {
     int page;
     char commandBuf[MAXCHARLIM];
     time_t commandTime;
+    int* sIdx;
 };
 struct state E;
 
@@ -123,6 +126,7 @@ void handleKeyPress() {
             E.page = BOOK_VIEW;
             break;
         case '\x1b':
+            if (E.page == SEARCH) E.rowoff = 0;
             E.page = NORMAL;
             break;
         case '/':
@@ -139,7 +143,7 @@ void moveCursor(int c) {
             if (E.cy > 0) E.cy--;
             break;
         case ARROW_DOWN:
-            if (E.cy < E.numrows) E.cy++;
+            if ((E.page == NORMAL && E.cy < E.numrows - 1) || (E.page == SEARCH && E.cy < E.numSRows - 1)) E.cy++;
             break;
         case ARROW_LEFT:
             if (E.cx > 0) E.cx--;
@@ -149,6 +153,15 @@ void moveCursor(int c) {
             break;
     }
     return;
+}
+void appendSearchRow(char *s, size_t len) {
+    E.sRow = realloc(E.sRow, sizeof(erow) * (E.numSRows + 1));
+    int at = E.numSRows;
+    E.sRow[at].size = len;
+    E.sRow[at].chars = malloc(len + 1);
+    memcpy(E.sRow[at].chars, s, len);
+    E.sRow[at].chars[len] = '\0';
+    E.numSRows++;
 }
 void appendRow(char *s, size_t len) {
     E.row = realloc(E.row, sizeof(erow) * (E.numrows + 1));
@@ -165,6 +178,19 @@ void renderBooks() {
         char rec[320];
         int len = snprintf(rec, sizeof(rec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", i, E.books[i].title, E.books[i].authors, E.books[i].publisher, E.books[i].qty);
         appendRow(rec, len);
+    }
+}
+void renderSearchResults() {
+    for (int i = 0; i < E.numSRows; ++i) {
+        free(E.sRow[i].chars);
+        E.sRow[i].size = 0;
+    }
+    E.numSRows = 0;
+    E.sRow = NULL;
+    for (int i = 0; i < E.numResults; ++i) {
+        char bookRec[MAXCHARLIM];
+        int len = snprintf(bookRec, sizeof(bookRec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.sIdx[i], E.books[E.sIdx[i]].title, E.books[E.sIdx[i]].authors, E.books[E.sIdx[i]].publisher, E.books[E.sIdx[i]].qty);
+        appendSearchRow(bookRec, len);
     }
 }
 void statusBar() {
@@ -186,14 +212,13 @@ void statusBar() {
 void topBar() {
     write(STDOUT_FILENO, "\x1b[1;7m", 6);
     char top[320];
-    int len;
-    if (E.page == NORMAL) {
-        len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
-        write(STDOUT_FILENO, top, len);
-    } else if (E.page == BOOK_VIEW) {
+    int len = 0;
+    if (E.page == BOOK_VIEW) {
         len = snprintf(top, sizeof(top), "Book Details");
-        write(STDOUT_FILENO, top, len);
+    } else {
+        len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
     }
+    write(STDOUT_FILENO, top, len);
     for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
     write(STDOUT_FILENO, "\x1b[m", 3);
     write(STDOUT_FILENO, "\r\n", 2);
@@ -201,27 +226,41 @@ void topBar() {
 void drawRows() {
     for (int y = 0 ; y < E.screenrows; ++y) {
         int filerow = y + E.rowoff;
-        if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
-        write(STDOUT_FILENO, E.row[filerow].chars, E.row[filerow].size);
-        if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
+        if (filerow < E.numrows) {
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
+            write(STDOUT_FILENO, E.row[filerow].chars, E.row[filerow].size);
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
+        }
         write(STDOUT_FILENO, "\x1b[K", 3);
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
-
+void drawSearchResults() {
+    for (int i = 0; i < E.screenrows; ++i) {
+        int filerow = i + E.rowoff;
+        if (filerow < E.numSRows) {
+            if(E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
+            write(STDOUT_FILENO, E.sRow[filerow].chars, E.sRow[filerow].size);
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
+        }
+        write(STDOUT_FILENO, "\x1b[K", 3);
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+}
 void drawBook() {
     char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookPublisher[MAXCHARLIM], bookPages[MAXCHARLIM], bookQty[MAXCHARLIM];
-    int len = snprintf(bookID, sizeof(bookID), "\x1b[33mBook ID:\x1b[m %d\r\n", E.books[E.cy].id);
+    int idx = E.sIdx == NULL ? E.cy : E.sIdx[E.cy];
+    int len = snprintf(bookID, sizeof(bookID), "\x1b[33mBook ID:\x1b[m %d\r\n", E.books[idx].id);
     write(STDOUT_FILENO, bookID, len);
-    len = snprintf(bookTitle, sizeof(bookTitle), "\x1b[33mBook Title:\x1b[m %s\r\n", E.books[E.cy].title);
+    len = snprintf(bookTitle, sizeof(bookTitle), "\x1b[33mBook Title:\x1b[m %s\r\n", E.books[idx].title);
     write(STDOUT_FILENO, bookTitle, len);
-    len = snprintf(bookAuthor, sizeof(bookAuthor), "\x1b[33mAuthor(s):\x1b[m %s\r\n", E.books[E.cy].authors);
+    len = snprintf(bookAuthor, sizeof(bookAuthor), "\x1b[33mAuthor(s):\x1b[m %s\r\n", E.books[idx].authors);
     write(STDOUT_FILENO, bookAuthor, len);
-    len = snprintf(bookPublisher, sizeof(bookPublisher), "\x1b[33mPublisher:\x1b[m %s\r\n", E.books[E.cy].publisher);
+    len = snprintf(bookPublisher, sizeof(bookPublisher), "\x1b[33mPublisher:\x1b[m %s\r\n", E.books[idx].publisher);
     write(STDOUT_FILENO, bookPublisher, len);
-    len = snprintf(bookPages, sizeof(bookPages), "\x1b[33mNumber of Pages:\x1b[m %d\r\n", E.books[E.cy].pages);
+    len = snprintf(bookPages, sizeof(bookPages), "\x1b[33mNumber of Pages:\x1b[m %d\r\n", E.books[idx].pages);
     write(STDOUT_FILENO, bookPages, len);
-    len = snprintf(bookQty, sizeof(bookQty), "\x1b[33mCopies Available:\x1b[m %d\r\n", E.books[E.cy].qty);
+    len = snprintf(bookQty, sizeof(bookQty), "\x1b[33mCopies Available:\x1b[m %d\r\n", E.books[idx].qty);
     write(STDOUT_FILENO, bookQty, len);
     write(STDOUT_FILENO, "\x1b[m", 4);
     for (int y = 0 ; y < E.screenrows - 6; ++y) {
@@ -303,7 +342,15 @@ void searchPrompt() {
     }
     int len = strlen(searchStr);
     while (searchStr[len - 1] == ' ' || searchStr[len - 1] == '\t') searchStr[--len] = '\0';
-    setCommandMsg("You searched for: %s", searchStr);
+    E.numResults = 0;
+    E.sIdx = NULL;
+    search(&E.sIdx, &E.numResults, &E.books, E.nbooks, searchStr);
+    setCommandMsg("You searched for: %s, %d matches found.", searchStr, E.numResults);
+    if (E.numResults > 0) {
+        E.page = SEARCH; 
+        E.rowoff = 0;
+        renderSearchResults();
+    }
 }
 
 void scroll() {
@@ -334,6 +381,7 @@ void refreshScreen() {
     topBar();
     if (E.page == NORMAL) drawRows();
     if (E.page == BOOK_VIEW) drawBook();
+    if (E.page == SEARCH) drawSearchResults();
     statusBar();
     drawCommand();
     drawHelp();
@@ -343,7 +391,8 @@ void refreshScreen() {
 }
 
 void init() {
-    E.page = E.rowoff = E.cx = E.cy = E.numrows = 0;
+    E.numSRows = E.numResults = E.page = E.rowoff = E.cx = E.cy = E.numrows = 0;
+    E.sIdx = NULL;
     snprintf(E.commandBuf, sizeof(E.commandBuf), "Press / to start a search");
     E.commandTime = time(NULL);
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
