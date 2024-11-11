@@ -10,7 +10,7 @@
 #define SOUND_LEN 5
 
 // Compile with soundex.c damerau-levenshtein.c search-utils.c and the main function uncommented to test the search
-
+/*
 int main(){
     FILE* dict;
     dict = fopen("dict_soundex.csv","r");
@@ -22,6 +22,7 @@ int main(){
     }
     return 0;
 }
+*/
 
 //Shelving synonyms for a while
 /*
