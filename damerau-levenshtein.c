@@ -1,18 +1,4 @@
-#include <stdio.h>
-
-#define SUBSCOST 1
-#define DELCOST 1
-#define INSCOST 1
-#define TRANCOST 1
-
-int len(char str[]);
-int damLevMatrix(char s1[], char s2[]);
-int min3(int a, int b, int c);
-
-int main(){
-    printf("%d\n", damLevMatrix("apple", "appel"));
-    return 0;
-}
+#include "damerau-levenshtein.h"
 
 int min3(int a, int b, int c){
     if (a <= b && a <=c){
@@ -27,13 +13,6 @@ int min3(int a, int b, int c){
     return -1;
 }
 
-int len(char *str){
-    int c;
-    for (c = 0; *(str+c) != '\0'; ++c){
-        ;
-    }
-    return c;
-}
 // This is the restricted Damerau-Levenshtein distance - not a true metric
 int damLevMatrix(char *s1, char *s2){
     int n = len(s1);
