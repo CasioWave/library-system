@@ -4,112 +4,33 @@
 #include "search-utils.h"
 #include "soundex.h"
 #include "fuzzy.h"
-#define LEVWEIGHT 10
-#define SOUNDWEIGHT 5
-#define MAXLEV 0
-#define SOUND_LEN 5
+#include "synonyms.h"
 
-// Compile with soundex.c damerau-levenshtein.c search-utils.c and the main function uncommented to test the search
-/*
-int main(){
-    FILE* dict;
-    dict = fopen("dict_soundex.csv","r");
-    int* results = (int*) malloc(1000*sizeof(int));
-    results = fuzzy_search("academy award",dict);
-    fclose(dict);
-    for (int i = 0; results[i] > 0; ++i){
-        //printf("%d -> %d\n",i,results[i]);
-    }
-    return 0;
-}
-*/
-
-//Shelving synonyms for a while
-/*
-//Takes the sanitized list of search query terms and returns the possible synonyms - the list of returned syns is terminated by string "-1"
-char** synonyms(FILE* thesaurus, char** queries, int len_query){
-    char* row = (char*) malloc(500*sizeof(char));
-    char** col = (char**) malloc(2*sizeof(char*));
-    col[0] = (char*) malloc(100*sizeof(char));
-    col[1] = (char*) malloc(400*sizeof(char));
-    char** terms = (char**) malloc(10*sizeof(char*));
-    for (int i = 0; i < 10; ++i){
-        terms[i] = (char*) malloc(50*sizeof(char));
-    }
-    char** syn = (char**) malloc(10*sizeof(char*));
-    for (int i = 0; i < 10; ++i){
-        syn[i] = (char*) malloc(50*sizeof(char));
-    }
-    char** ret_syn = (char**) malloc(100*sizeof(char*));
-    for (int i = 0; i < 10; ++i){
-        ret_syn[i] = (char*) malloc(50*sizeof(char));
-    }
-    int no_syn = 0;
-    while (feof(thesaurus) == 0){
-        fgets(row, 500, thesaurus);
-        str_split(row, ',', col);
-        int n = len(col[1]);
-        col[1][n] = '\0'; //Removing the \n at the end of the row
-        int no_terms = str_split(col[0],'-',terms);
-        int no_syn_terms = str_split(col[1],'-',syn);
-        int check = 0;
-        for (int i = 0; i < no_terms; ++i){
-            if (in_str_list(terms[i],queries,len_query)){
-                //printf("TERM %s from thesaurus in query!\n", terms[i]);
-                ++check;
-            }
-        }
-        //The query string list contains this word from the thesaurus
-        if (check == no_terms){
-            for (int x = 0; x < no_syn_terms; ++x){
-                ret_syn[no_syn] = syn[x];
-                printf("The term %s from thesaurus located in query!\n",col[0]);
-                ++no_syn;
-            }
-        }
-        else {
-            continue;
-        }
-    }
-    ret_syn[no_syn] = "-1";
-    for (int i = 0; str_equal(ret_syn[i],"-1")!=1;++i){
-        printf("Synonym -> %s\n",ret_syn[i]);
-    }
-    return ret_syn;
-}
-*/
 //Returns an array of indices (matches with index in books-clean.csv) sorted by score, list terminated by -1
-int* fuzzy_search(char* query,FILE* dict){
-    int* res = (int*) malloc(1000 * sizeof(int));
-    float* scores = (float*) malloc(1000 * sizeof(float));
-    for (int i = 0; i < 1000; ++i){
+int* fuzzy_search(char* query, char* dict_file){
+    FILE* dict = fopen(dict_file,"r");
+    int* res = (int*) malloc(MAXRES * sizeof(int));
+    float* scores = (float*) malloc(MAXRES * sizeof(float));
+    
+    for (int i = 0; i < MAXRES; ++i){
         res[i] = -1;
-        scores[i] = (float)-1;
+        scores[i] = (float) -1;
     }
     char* strip_query = (char*) malloc(200*sizeof(char));
     strip(query,strip_query);
-    char** terms = (char**) malloc(20*sizeof(char*));
+    char** terms = (char**) malloc(MAXQUERY*sizeof(char*));
     for (int i = 0; i < 20; ++i){
         terms[i] = (char*) malloc(100*sizeof(char));
     }
     int no_terms = str_split(strip_query, ' ', terms);
-    char** san_terms = (char**) malloc(20*sizeof(char*));
-    char** strong_san_terms = (char**) malloc(20*sizeof(char*));
-    for (int i = 0; i < 20; ++i){
-        san_terms[i] = (char*) malloc(100*sizeof(char));
-    }
-    for (int i = 0; i < 20; ++i){
-        strong_san_terms[i] = (char*) malloc(100*sizeof(char));
-    }
-    for (int i = 0; i < no_terms; ++i){
+    char** san_terms = string_arr_mallocer(MAXQUERY, 100);
+    char** strong_san_terms = string_arr_mallocer(MAXQUERY, 100);
+    for (int i = 0; i < no_terms && i < MAXQUERY; ++i){
         sanitize(terms[i],san_terms[i]);
         strong_sanitize(terms[i],strong_san_terms[i]);
     }
     free(terms);
-    char ** sound_hashes = (char**) malloc(20*sizeof(char*));
-    for (int i = 0; i < 20; ++i){
-        sound_hashes[i] = (char*) malloc((SOUND_LEN+1)*sizeof(char));
-    }
+    char ** sound_hashes = string_arr_mallocer(MAXQUERY, SOUND_LEN+1);
     for (int i = 0; i < no_terms; ++i){
         soundex_hash(strong_san_terms[i], sound_hashes[i], SOUND_LEN);
         //printf("%s\n",sound_hashes[i]);
@@ -126,40 +47,63 @@ int* fuzzy_search(char* query,FILE* dict){
     for (int i = 0; i < 20000; ++i){
         indexes[i] = (char*) malloc(6*sizeof(char));
     }
-    //Shelved synonym stuff
-    /*
-    char** syn = (char**) malloc(100*sizeof(char*));
-    for (int i = 0; i < 100; ++i){
-        syn[i] = (char*) malloc(50*sizeof(char));
+    
+    //Before we start looping over dict, we create list of synonyms
+    char ** syns = string_arr_mallocer(100, 100);
+    synonyms("thesaurus.csv", san_terms, no_terms, syns);
+    
+    //Now we create the final array of terms to lookup
+    int total_terms = 0;
+    char** final_terms = string_arr_mallocer(MAXQUERY + 100, 100);
+    int no_syns = 0;
+    //Count the number of synonyms
+    while (str_equal(syns[no_syns], "-1") != 1){
+        ++no_syns;
     }
-    FILE* thesaurus = fopen("thesaurus.csv","r");
-    syn = synonyms(thesaurus, san_terms, no_terms);
-    int no_syn = 0;
-    while (str_equal(syn[no_syn], "-1") != 1){
-        ++no_syn;
+    //Add the actual terms
+    for (int i = 0; i < no_terms; ++i){
+        final_terms[i] = strdup(san_terms[i]);
     }
-    */
-    //printf("There are %d synonyms, like -> %s\n",no_syn,syn[0]);
+    for (int i = no_terms; i < no_terms+no_syns; ++i){
+        final_terms[i] = strdup(syns[i-no_terms]);
+    }
+    total_terms = no_syns+no_terms;
+    //free(syns);
+    free(san_terms);
+    
     //Main loop over dict
     int no_res = 0;
     while (feof(dict) == 0){
         fgets(row,10000,dict);
+        row[len(row)-1] = '\0'; //Removing the \n from the end
+        //printf("Row is -> %s\n",row);
         str_split(row, ',', col);
-        col[3][SOUND_LEN] = '\0'; //Mitigating the extra \n at the end
+        //printf("TOKEN -> %s\n",col[0]);
+        //printf("TYPE -> %s\n",col[1]);
+        //printf("INDICES -> %s\n",col[2]);
+        //printf("SOUNDEX -> %s\n",col[3]);
         int no_index = str_split(col[2],'-',indexes);
+        //printf("The split indices are ->\n");
+        //for (int i = 0; i < no_index; ++i){
+        //    printf("%s\n",indexes[i]);
+        //}
         //Damerau-Levenshtein Test and Score allocation
         int lev = 0;
-        for (int i = 0; i < no_terms; ++i){
-            lev = damLevMatrix(san_terms[i], col[0]);
+        for (int i = 0; i < total_terms; ++i){
+            lev = damLevMatrix(final_terms[i], col[0]);
             if (lev > MAXLEV){
                 continue;
             }
             else{
+                int penalty = 0;
+                if (i >= no_terms){
+                    penalty = SYN_PENALTY;
+                }
                 for (int j = 0; j < no_index; ++j){
                     int* loc = in_where(res, atoi(indexes[j]), 1000);
                     if (loc[0] == -1){
                         res[no_res] = atoi(indexes[j]);
-                        scores[no_res] = LEVWEIGHT*(1.0/((float)(lev+1)));
+                        scores[no_res] = LEVWEIGHT*(1.0/((float)(lev+1))) - penalty;
                         //printf("(DM) NEW INDEX %d assigned score %f\n",res[no_res],scores[no_res]);
                         ++no_res;
                     }
@@ -173,9 +117,13 @@ int* fuzzy_search(char* query,FILE* dict){
             }
         }
         //Soundex Test and Score allocation
-        for (int i = 0; i < no_terms; ++i){
+        for (int i = 0; i < total_terms; ++i){
             if (str_equal(sound_hashes[i],col[3])){
                 //printf("SOUNDEX MATCH OF %s with %s\n",san_terms[i],col[0]);
+                int penalty = 0;
+                if (i >= no_terms){
+                    penalty = SYN_PENALTY;
+                }
                 for (int j = 0; j < no_index; ++j){
                     int* loc = in_where(res,atoi(indexes[j]),1000);
                     int san_len = len(san_terms[i]);
@@ -189,7 +137,7 @@ int* fuzzy_search(char* query,FILE* dict){
                     }
                     if (loc[0] == -1){
                         res[no_res] = atoi(indexes[j]);
-                        scores[no_res] = SOUNDWEIGHT*(1.0/(len_diff+1));
+                        scores[no_res] = SOUNDWEIGHT*(1.0/(len_diff+1))-penalty;
                         //printf("(S) NEW INDEX %d assigned score %f - len(san) = %d len(token) = %d\n",res[no_res],scores[no_res],len(san_terms[i]),len(col[0]));
                         ++no_res;
                     }
@@ -209,15 +157,9 @@ int* fuzzy_search(char* query,FILE* dict){
     free(row);
     free(col);
     free(sound_hashes);
-    free(san_terms);
     int* ret = (int*) malloc((no_res+1)*sizeof(int));
     float** unsorted = (float**) malloc(no_res*sizeof(float*));
     int i;
-    /*
-    for (i = 0; i < no_res; ++i){
-        printf("%d -> INDEX: %d, SCORE: %f\n",i,res[i],scores[i]);
-    }
-    */
     for (i = 0; i < no_res; ++i){
         //printf("ASSIGNED %d\n",i);
         unsorted[i] = (float*) malloc(2*sizeof(float));
@@ -226,12 +168,6 @@ int* fuzzy_search(char* query,FILE* dict){
         unsorted[i][1] = scores[i];
         //printf("TEST VALUE OF unsorted at (%d,1) -> %f\n",i,unsorted[i][1]);
     }
-    //printf("HERE\n");
-    /*
-    for (i = 0; i < no_res; ++i){
-        printf("%d -> %f - %f\n",i,unsorted[i][0],unsorted[i][1]);
-    }
-    */
     
     //printf("LENGTH(UNSORTED) = %d\n",no_res);
     bubble2dsort(unsorted,no_res);
@@ -243,6 +179,7 @@ int* fuzzy_search(char* query,FILE* dict){
     }
     ret[no_res] = -1;
     free(unsorted);
-    printf("%d no of results\n",no_res);
+    //printf("%d no of results\n",no_res);
+    fclose(dict);
     return ret;
 }
