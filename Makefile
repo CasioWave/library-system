@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -Wextra
 TARGET=lms
 MAIN=main.c
-OBJS=ui.o library.o login.o utils.o
+OBJS=ui.o library.o login.o utils.o fuzzy.o preprocess.o soundex.o synonyms.o damerau-levenshtein.o rsa.o search-utils.o 
 
 all: $(TARGET)
 

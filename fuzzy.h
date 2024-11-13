@@ -11,5 +11,5 @@
 #define MAXQUERY 20
 #define MAXRES 1000
 
-int* fuzzy_search(char* query, char* dict_file);
+int fuzzy_search(char* query, char* dict_file, int**);
 int read_line(FILE* file, char* ret);

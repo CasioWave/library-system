@@ -41,19 +41,21 @@ Book* fetchBooks(char * fname, int* nbooks) {
 }
 
 void search(int** idx, int *numResults, Book** books, int nbooks, char* searchStr) {
-    *idx = NULL;
-    int* results = fuzzy_search(searchStr, "dict_soundex.csv");
-    int i = 0;
-    while(results[i] != -1){
-        if (*idx == NULL){
-            *idx = calloc(i+1, sizeof(int));
-        }
-        else{
-            *idx = reallocarray(*idx, i+1, sizeof(int));
-        }
-        (*idx)[i] = results[i];
-        ++i;
-    }
+    *numResults = fuzzy_search(searchStr, "dict_soundex.csv", idx);
+    /* *numResults = 5; */
+    /* *idx = NULL; */
+    /* int* results = fuzzy_search(searchStr, "dict_soundex.csv"); */
+    /* int i = 0; */
+    /* while(results[i] != -1){ */
+    /*     if (*idx == NULL){ */
+    /*         *idx = calloc(i+1, sizeof(int)); */
+    /*     } */
+    /*     else{ */
+    /*         *idx = reallocarray(*idx, i+1, sizeof(int)); */
+    /*     } */
+    /*     (*idx)[i] = results[i]; */
+    /*     ++i; */
+    /* } */
     /*
     int c = 0;
     for (int i = 0; i < nbooks; ++i) {
@@ -64,5 +66,5 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
         }
     }
     */
-    *numResults = i;
+    /* *numResults = i; */
 }

@@ -7,7 +7,7 @@
 #include "synonyms.h"
 
 //Returns an array of indices (matches with index in books-clean.csv) sorted by score, list terminated by -1
-int* fuzzy_search(char* query, char* dict_file){
+int fuzzy_search(char* query, char* dict_file, int** ret){
     FILE* dict = fopen(dict_file,"r");
     int* res = (int*) malloc(MAXRES * sizeof(int));
     float* scores = (float*) malloc(MAXRES * sizeof(float));
@@ -157,7 +157,8 @@ int* fuzzy_search(char* query, char* dict_file){
     free(row);
     free(col);
     free(sound_hashes);
-    int* ret = (int*) malloc((no_res+1)*sizeof(int));
+    *ret = NULL;
+    *ret = (int*) malloc(no_res*sizeof(int));
     float** unsorted = (float**) malloc(no_res*sizeof(float*));
     int i;
     for (i = 0; i < no_res; ++i){
@@ -174,12 +175,12 @@ int* fuzzy_search(char* query, char* dict_file){
     //printf("SORTED!\n");
     
     for (int i = 0; i < no_res; ++i){
-        ret[i] = (int) unsorted[i][0];
+        (*ret)[i] = (int) unsorted[i][0];
         //printf("%d\n",ret[i]);
     }
-    ret[no_res] = -1;
+    /* ret[no_res] = -1; */
     free(unsorted);
     //printf("%d no of results\n",no_res);
     fclose(dict);
-    return ret;
+    return no_res;
 }

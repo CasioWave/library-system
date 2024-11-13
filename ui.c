@@ -13,7 +13,7 @@
 #include "login.h"
 
 #define MSGTIMEOUT 3
-#define MAXCHARLIM 1000
+#define MAXCHARLIM 5000
 
 enum PAGES {
     NORMAL=0,
@@ -189,7 +189,8 @@ void renderSearchResults() {
     E.sRow = NULL;
     for (int i = 0; i < E.numResults; ++i) {
         char bookRec[MAXCHARLIM];
-        int len = snprintf(bookRec, sizeof(bookRec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.sIdx[i], E.books[E.sIdx[i]].title, E.books[E.sIdx[i]].authors, E.books[E.sIdx[i]].publisher, E.books[E.sIdx[i]].qty);
+        /* int len = snprintf(bookRec, sizeof(bookRec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.sIdx[i], E.books[E.sIdx[i]].title, E.books[E.sIdx[i]].authors, E.books[E.sIdx[i]].publisher, E.books[E.sIdx[i]].qty); */
+        int len = snprintf(bookRec, sizeof(bookRec), "%-7d|HAHAHA", E.sIdx[i]);
         appendSearchRow(bookRec, len);
     }
 }
@@ -349,6 +350,7 @@ void searchPrompt() {
     if (E.numResults > 0) {
         E.page = SEARCH; 
         E.rowoff = 0;
+        E.cy = 0;
         renderSearchResults();
     }
 }
