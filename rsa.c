@@ -2,7 +2,8 @@
 #include <time.h>
 #define MAXPRIME 1000
 #include "rsa.h"
-unsigned long int n;
+
+unsigned long int prime_product;
 unsigned long int public_key, private_key;
 
 unsigned long int encrypt(unsigned long int msg){
@@ -11,7 +12,7 @@ unsigned long int encrypt(unsigned long int msg){
     
     while (e--){
         enc *= msg;
-        enc %= n;
+        enc %= prime_product;
     }
     return enc;
 }
@@ -21,7 +22,7 @@ unsigned long int decrypt(unsigned long int enc){
     unsigned long int msg = 1;
     while (d--){
         msg *= enc;
-        msg %= n;
+        msg %= prime_product;
     }
     return msg;
 }
@@ -67,55 +68,60 @@ int setkeys(){
     }
     
     
-    n = p*q;
-    
-    unsigned long int fi = (p-1)*(q-1);
-    unsigned long int e = 2;
+    prime_product = p*q;
+    unsigned long int * fi = (unsigned long int*) malloc(sizeof(unsigned long int));
+    unsigned long int* e = (unsigned long int*) malloc(sizeof(unsigned long int));
+    *fi = (p-1)*(q-1);
+    *e = 2;
     while (1){
-        if (gcd(fi,e)==1){
+        if (gcd(*fi,*e)==1){
             break;
         }
         ++e;
     }
-    public_key = e;
-    
-    unsigned long int priv = 2;
+    public_key = *e;
+    unsigned long int* priv = (unsigned long int*) malloc(sizeof(unsigned long int));
+    *(priv) = 2;
     while  (1){
-        if ((priv*e)%fi == 1){
+        if ((*(priv)*(*e))%(*fi) == 1){
             break;
         }
-        ++priv;
+        ++(*priv);
     }
-    private_key = priv;
+    private_key = *(priv);
     return 0;
 }
 
 unsigned long int returnRandom(unsigned long int min, unsigned long int max){
-    unsigned int seed = time(0);
-    return (rand_r(&seed) % (max-min+1) + min);
+    unsigned int* seed = (unsigned int*) malloc(sizeof(unsigned int));
+    *seed = time(0);
+    return (rand_r(seed) % (max-min+1) + min);
 }
 
 unsigned long int diff(unsigned long int x, unsigned long int y){
-    unsigned long int d;
+    unsigned long int * d = (unsigned long int *) malloc(sizeof(unsigned long int));
     if (x>y)
-        d = x-y;
+        *d = x-y;
     else
-        d = y-x;
-    return d;
+        *d = y-x;
+    return *d;
 }
 
 unsigned long int gcd(unsigned long int x, unsigned long int y){
-    unsigned long int temp = 0;
+    unsigned long int * temp = (unsigned long int *) malloc(sizeof(unsigned long int));
+    *temp = 0;
     
     while (1){
-        temp = x % y;
-        if (temp == 0){
+        *temp = x % y;
+        if (*temp == 0){
+            free(temp);
             return y;
         }
         else {
             x = y;
-            y = temp;
+            y = *temp;
         }
     }
+    free(temp);
     return -1;
 }

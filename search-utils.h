@@ -13,3 +13,4 @@ int* in_where(int* l, int x, int length);
 int bubble2dsort(float** unsorted, int l);
 int swap(float** x, int i, int j);
 int in_str_list(char* str, char** l, int len_l);
+char** string_arr_mallocer(int no_strings, int string_len);

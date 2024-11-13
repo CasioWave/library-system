@@ -4,6 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+char** string_arr_mallocer(int no_strings, int string_len){
+    char** ret = (char**) malloc(no_strings*sizeof(char*));
+    for (int i = 0; i < no_strings; ++i){
+        ret[i] = (char*) malloc(string_len*sizeof(char));
+    }
+    return ret;
+}
+
 int hash_string(char *str){
     int ret = 0;
     for (int i = 0; *(str+i) != '\0'; ++i){
