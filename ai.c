@@ -178,7 +178,7 @@ int main() {
 
     printf("DONE\n");
 
-    FILE* output = fopen("dict_soundex.csv", "w");
+    FILE* output = fopen("dict_soundex_trial.csv", "w");
     if (output == NULL) {
         printf("Could not open output file\n");
         return 1;
