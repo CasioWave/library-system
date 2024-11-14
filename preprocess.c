@@ -15,6 +15,9 @@ void preprocess(char *database, char *eng_thesaurus){
     //Now, we generate the dictionary
     char excluded_words[7][5] = {"a","an","the","in","is","and","or"};
     char** unique_tokens = string_arr_mallocer(data.nrows*10, 50); //Each token has a maximum of 50 characters, and we assume each row contributes max 10 unique tokens (over-estimation)
+    for (int i = 0; i < data.nrows*10; ++i){
+	    unique_token[i] = "\0";
+    }
     //Corresponding list of indices where the unique token appears
     int** indices = (int**) malloc(data.nrows*10*sizeof(int*));
     for (int i = 0; i < data.nrows*10; ++i){
@@ -29,5 +32,11 @@ void preprocess(char *database, char *eng_thesaurus){
         for (int j = 0; j < data.ncols; ++j){ //Loop over cols
             
         }
+    }
+
+    for (int i = 0; i < data.nrows; ++i){
+	    for (int j = 0; j < data.ncols; ++j){
+		    char * san_term = (char*) malloc(:)
+	    }
     }
 }

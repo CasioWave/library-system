@@ -69,7 +69,7 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
     }
     total_terms = no_syns+no_terms;
     //free(syns);
-    free(san_terms);
+    //free(san_terms);
     
     //Main loop over dict
     int no_res = 0;
