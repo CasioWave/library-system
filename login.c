@@ -17,13 +17,13 @@ User* fetchUsers(char *filename) {
     User* users;
     users = calloc(userData.nrows, sizeof(User));
 
-    for (int i = 0; i < userData.nrows - 1; ++i) {
+    for (int i = 0; i < userData.nrows; ++i) {
         users[i].username = strdup(userData.data[i][0]);
         users[i].password = strdup(userData.data[i][1]);
         users[i].priv = atoi(userData.data[i][2]);
     }
 
-    NUSERS = userData.nrows - 1;
+    NUSERS = userData.nrows;
 
     return users;
 }

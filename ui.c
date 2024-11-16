@@ -20,7 +20,6 @@ enum PAGES {
     BOOK_VIEW,
     SEARCH
 };
-
 struct state {
     int numSRows, cx, cy, screenrows, screencols, numrows, rowoff, numResults;
     erow* row;
@@ -127,6 +126,7 @@ void handleKeyPress() {
             break;
         case '\x1b':
             if (E.page == SEARCH) E.rowoff = 0;
+            if (E.sIdx != NULL) E.page = SEARCH;
             E.page = NORMAL;
             break;
         case '/':
