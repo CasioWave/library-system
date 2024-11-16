@@ -6,6 +6,7 @@
 #include <time.h>
 #include "fuzzy.h"
 
+#define MAXCHARLIM 4000
 #define ISSUE 1
 #define RETURN -1
 
@@ -92,5 +93,13 @@ int issueBook(char* uname, int bookID) {
 }
 
 void updateBooks(Book* books, int nbooks) {
+    char row[MAXCHARLIM];
+    int len = snprintf(row, sizeof(row), "%s,%s,%s,%s,%s,%s,%s", "bookID", "title", "authors", "num_pages", "publication_date", "publisher", "qty");
+    FILE* fp = fopen("books-clean.csv", "w");
+    fwrite(row, len, 1, fp);
+    for (int i = 0; i < nbooks; i++) {
+        fprintf(fp, "\n%d,%s,%s,%d,%s,%s,%d", books[i].id, books[i].title, books[i].authors, books[i].pages, books[i].pubDate, books[i].publisher, books[i].qty);
+    }
+    fclose(fp);
     return;
 }

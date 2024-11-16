@@ -176,6 +176,14 @@ void appendRow(char *s, size_t len) {
     E.numrows++;
 }
 void renderBooks() {
+    free(E.books);
+    for (int i = 0; i < E.numrows; ++i) {
+        free(E.row[i].chars);
+    }
+    free(E.row);
+    E.row = NULL;
+    E.numrows = 0;
+    E.books = NULL;
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
     for (int i = 0; i < E.nbooks; ++i) {
         char rec[320];
@@ -342,8 +350,9 @@ void issuePrompt(int i) {
     int ret = issueBook(E.username, E.cy);
     if (ret == 0) {
         setCommandMsg("Successfully issued book number %d for user %s", i, E.username);
-        /* E.books[i].qty--; */
-        /* updateBooks(E.books, E.nbooks); */
+        E.books[i].qty--;
+        updateBooks(E.books, E.nbooks);
+        renderBooks();
     } else {
         setCommandMsg("Coudln't issue book. Error Code: %d", ret);
     }
