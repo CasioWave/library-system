@@ -83,7 +83,10 @@ int issueBook(char* uname, int bookID) {
     FILE *fp = NULL;
     fp = fopen("transanctions.csv", "a");
     if (fp == NULL) return -1;
-    fprintf(fp, "\n%s,%d,%d,%s", uname, bookID, ISSUE, date);
+    char row[255];
+    len = snprintf(row, sizeof(row), "%s,%d,%d,%s", uname, bookID, ISSUE, date);
+    fwrite("\n", 1, 1, fp);
+    fwrite(row, len, 1, fp);
     fclose(fp);
     return 0;
 }
