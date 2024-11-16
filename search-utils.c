@@ -51,12 +51,10 @@ int strip(char *str, char *ret){
     return 0;
 }
 
-int in(char s, char *li){
-    int c;
-    for (c = 0; *(li+c) != '\0'; ++c){
-        if (s == *(li+c)){
-            return 1;
-        }
+int in(char c, const char *set) {
+    while (*set) {
+        if (c == *set) return 1;
+        set++;
     }
     return 0;
 }
@@ -97,14 +95,15 @@ int swap(float **x, int i, int j){
 
 int in_str_list(char *str, char **l, int len_l){
     for (int i = 0; i < len_l; ++i){
+        //printf("%d\n",i);
         if (str_equal(str, l[i])){
-            return 1;
+            return i;
         }
         else{
             continue;
         }
     }
-    return 0;
+    return -1;
 }
 
 int bubble2dsort(float** unsorted, int l){
@@ -277,3 +276,23 @@ int str_split(char *str, char delim, char** l){
     }
     return k+1;
 }
+/*
+int super_split(char *str, char *delims, char **l){
+    int counter = 0;
+    char** holder = string_arr_mallocer(500, 100);
+    holder[0][0] = '\0';
+    for (int i = 0; delims[i] != '\0'; ++i){
+        if (holder[0][0] =='\0'){
+            int inter = str_split(str, delims[i], holder);
+            for (int j = counter, y = 0; j < counter+inter; ++j, ++y){
+                copy_str(holder[y], l[j]);
+            }
+            counter += inter;
+        }
+        else{
+            for (int j = 0; j < )
+        }
+        counter += inter;
+    }
+}
+*/

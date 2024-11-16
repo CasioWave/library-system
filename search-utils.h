@@ -1,7 +1,7 @@
 int len(char str[]);
 int lower(char *str, char *ret);
 int sanitize(char *str, char *ret);
-int in(char s, char *li);
+int in(char s,const char *li);
 int strip(char *str, char *ret);
 int strong_sanitize(char *str, char *ret);
 int copy_str(char *str, char *copy);
@@ -14,3 +14,4 @@ int bubble2dsort(float** unsorted, int l);
 int swap(float** x, int i, int j);
 int in_str_list(char* str, char** l, int len_l);
 char** string_arr_mallocer(int no_strings, int string_len);
+//int super_split(char* str, char* delims, char** l);
