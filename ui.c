@@ -125,15 +125,38 @@ void handleKeyPress() {
             E.page = BOOK_VIEW;
             break;
         case '\x1b':
-            if (E.page == SEARCH) E.rowoff = 0;
-            if (E.sIdx != NULL) E.page = SEARCH;
-            E.page = NORMAL;
+            if (E.sIdx != NULL && E.page == BOOK_VIEW) {
+                E.page = SEARCH;
+            } else {
+                E.page = NORMAL;
+                free(E.sIdx);
+                E.numSRows = 0;
+                E.sIdx = NULL;
+            }
             break;
         case '/':
             if (E.page == NORMAL) searchPrompt();
             break;
         case 'i':
-            if (E.page == NORMAL) issuePrompt(E.cy);
+            if (E.page == BOOK_VIEW && E.userPriv != ADMIN) {
+                if (E.sIdx == NULL) {
+                    issuePrompt(E.cy);
+                } else {
+                    issuePrompt(E.sIdx[E.cy]);
+                }
+            }
+            break;
+        case 'e':
+            if (E.page == BOOK_VIEW && E.userPriv == ADMIN) {
+                if (E.sIdx == NULL) {
+                    editPrompt(E.cy);
+                } else {
+                    editPrompt(E.sIdx[E.cy]);
+                }
+            }
+            break;
+        case 'a':
+            if (E.page == NORMAL && E.userPriv == ADMIN) addPrompt();
             break;
         default:
             break;
@@ -346,8 +369,107 @@ char *commandPrompt(char *prompt) {
     }
 }
 
+void addPrompt() {
+    char* title = NULL;
+    title = commandPrompt("Enter title: %s");
+    if (title == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    char* authors = NULL;
+    authors = commandPrompt("Enter Author(s) (separate multiple authors using a '/'): %s");
+    if (authors == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    char* publisher = NULL;
+    publisher = commandPrompt("Enter publisher: %s");
+    if (publisher == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    char* pubDate = NULL;
+    pubDate = commandPrompt("Enter publication date: %s");
+    if (pubDate == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    char* pages = NULL;
+    pages = commandPrompt("Enter number of pages: %s");
+    if (pages == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    char* copies = NULL;
+    copies = commandPrompt("Enter copies: %s");
+    if (copies == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    Book book;
+    book.title = strdup(title);
+    book.authors = strdup(authors);
+    book.publisher = strdup(publisher);
+    book.pubDate = strdup(pubDate);
+    book.id = E.nbooks;
+    book.qty = atoi(copies);
+    book.pages = atoi(copies);
+    E.books = realloc(E.books, (E.nbooks + 1)*sizeof(Book));
+    E.books[E.nbooks++] = book;
+    updateBooks(E.books, E.nbooks);
+    renderBooks();
+    setCommandMsg("Added Book calld %s with ID %d",book.title, book.id);
+}
+void editPrompt(int i) {
+    char* field = NULL;
+    field = commandPrompt("Enter the Field to edit [title: 1, authors: 2, publisher: 3, publication date: 4, pages: 5, copies: 6]: %s");
+    if (field == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    int choice = atoi(field);
+    if (choice < 1 || choice > 6) {
+        setCommandMsg("Invalid Input");
+        return;
+    }
+    char* val = NULL;
+    val = commandPrompt("Enter the new value for this field: %s");
+    switch (choice) {
+        case 1:
+            E.books[i].title = strdup(val);
+            break;
+        case 2:
+            E.books[i].authors = strdup(val);
+            break;
+        case 3:
+            E.books[i].publisher = strdup(val);
+            break;
+        case 4:
+            E.books[i].pubDate = strdup(val);
+            break;
+        case 5:
+            E.books[i].pages = atoi(val);
+            break;
+        case 6:
+            E.books[i].qty = atoi(val);
+            break;
+        default:
+            break;
+    }
+    updateBooks(E.books, E.nbooks);
+    renderBooks();
+    setCommandMsg("Successfully Edited the book");
+}
 void issuePrompt(int i) {
-    int ret = issueBook(E.username, E.cy);
+    if (E.books[i].qty < 1) {
+        setCommandMsg("Can't issue this book. Not enough copies available");
+        return;
+    }
+    if (E.books[i].qty <= 3 && E.userPriv != FACULTY) {
+        setCommandMsg("Less than 3 copies available. Only Faculty members can issue this book");
+        return;
+    }
+    int ret = issueBook(E.username, i);
     if (ret == 0) {
         setCommandMsg("Successfully issued book number %d for user %s", i, E.username);
         E.books[i].qty--;

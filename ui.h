@@ -51,3 +51,5 @@ void appendSearchRow(char*, size_t);
 void renderSearchResults();
 void drawSearchResults();
 void issuePrompt(int);
+void addPrompt();
+void editPrompt(int);

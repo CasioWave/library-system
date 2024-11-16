@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include "fuzzy.h"
+#include "preprocess.h"
 
 #define MAXCHARLIM 4000
 #define ISSUE 1
@@ -46,7 +47,7 @@ Book* fetchBooks(char * fname, int* nbooks) {
 }
 
 void search(int** idx, int *numResults, Book** books, int nbooks, char* searchStr) {
-    *numResults = fuzzy_search(searchStr, "dict_soundex.csv", idx);
+    /* *numResults = fuzzy_search(searchStr, "dict_soundex.csv", idx); */
     /* *numResults = 5; */
     /* *idx = NULL; */
     /* int* results = fuzzy_search(searchStr, "dict_soundex.csv"); */
@@ -61,7 +62,6 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
     /*     (*idx)[i] = results[i]; */
     /*     ++i; */
     /* } */
-    /*
     int c = 0;
     for (int i = 0; i < nbooks; ++i) {
         if (strcasestr((*books)[i].title, searchStr) != NULL) {
@@ -70,8 +70,7 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
             (*idx)[c++] = i;
         }
     }
-    */
-    /* *numResults = i; */
+    *numResults = c;
 }
 
 int issueBook(char* uname, int bookID) {
@@ -101,5 +100,6 @@ void updateBooks(Book* books, int nbooks) {
         fprintf(fp, "\n%d,%s,%s,%d,%s,%s,%d", books[i].id, books[i].title, books[i].authors, books[i].pages, books[i].pubDate, books[i].publisher, books[i].qty);
     }
     fclose(fp);
+    preprocess();
     return;
 }
