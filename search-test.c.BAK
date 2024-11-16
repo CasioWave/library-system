@@ -1,0 +1,18 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include "damerau-levenshtein.h"
+#include "fuzzy.h"
+#include "search-utils.h"
+#include "soundex.h"
+#include "synonyms.h"
+#include "preprocess.h"
+
+int main(){
+    //preprocess();
+    //char* query = (char*) malloc(200*sizeof(char));
+    //scanf("%s",query);
+    int* no = fuzzy_search("psychology everyday hate", "dict_soundex.csv");
+    for (int i = 0; no[i] != -1; ++i){
+        //printf("%d result index -> %d\n",i,no[i]);
+    }
+}
