@@ -249,7 +249,7 @@ void drawSearchResults() {
     }
 }
 void drawBook() {
-    char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookPublisher[MAXCHARLIM], bookPages[MAXCHARLIM], bookQty[MAXCHARLIM];
+    char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookPublisher[MAXCHARLIM], bookPages[MAXCHARLIM], bookQty[MAXCHARLIM], bookDate[MAXCHARLIM];
     int idx = E.sIdx == NULL ? E.cy : E.sIdx[E.cy];
     int len = snprintf(bookID, sizeof(bookID), "\x1b[33mBook ID:\x1b[m %d\r\n", E.books[idx].id);
     write(STDOUT_FILENO, bookID, len);
@@ -261,10 +261,12 @@ void drawBook() {
     write(STDOUT_FILENO, bookPublisher, len);
     len = snprintf(bookPages, sizeof(bookPages), "\x1b[33mNumber of Pages:\x1b[m %d\r\n", E.books[idx].pages);
     write(STDOUT_FILENO, bookPages, len);
+    len = snprintf(bookDate, sizeof(bookDate), "\x1b[33mPublication Date:\x1b[m %s\r\n", E.books[idx].pubDate);
+    write(STDOUT_FILENO, bookDate, len);
     len = snprintf(bookQty, sizeof(bookQty), "\x1b[33mCopies Available:\x1b[m %d\r\n", E.books[idx].qty);
     write(STDOUT_FILENO, bookQty, len);
     write(STDOUT_FILENO, "\x1b[m", 4);
-    for (int y = 0 ; y < E.screenrows - 6; ++y) {
+    for (int y = 0 ; y < E.screenrows - 7; ++y) {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }

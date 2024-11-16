@@ -32,7 +32,7 @@ Book* fetchBooks(char * fname, int* nbooks) {
         books[i].title = strdup(bookData.data[i][TITLE]);
         books[i].authors = strdup(bookData.data[i][AUTH]);
         books[i].pages = atoi(bookData.data[i][PAGES]);
-        // TODO: PubDate
+        books[i].pubDate = strdup(bookData.data[i][PUBDATE]);
         books[i].publisher = strdup(bookData.data[i][PUBLISHER]);
         books[i].qty = atoi(bookData.data[i][QTY]);
 
