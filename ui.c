@@ -20,7 +20,6 @@ enum PAGES {
     BOOK_VIEW,
     SEARCH
 };
-
 struct state {
     int numSRows, cx, cy, screenrows, screencols, numrows, rowoff, numResults;
     erow* row;
@@ -127,10 +126,14 @@ void handleKeyPress() {
             break;
         case '\x1b':
             if (E.page == SEARCH) E.rowoff = 0;
+            if (E.sIdx != NULL) E.page = SEARCH;
             E.page = NORMAL;
             break;
         case '/':
             if (E.page == NORMAL) searchPrompt();
+            break;
+        case 'i':
+            if (E.page == NORMAL) issuePrompt(E.cy);
             break;
         default:
             break;
@@ -173,6 +176,14 @@ void appendRow(char *s, size_t len) {
     E.numrows++;
 }
 void renderBooks() {
+    free(E.books);
+    for (int i = 0; i < E.numrows; ++i) {
+        free(E.row[i].chars);
+    }
+    free(E.row);
+    E.row = NULL;
+    E.numrows = 0;
+    E.books = NULL;
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
     for (int i = 0; i < E.nbooks; ++i) {
         char rec[320];
@@ -249,7 +260,7 @@ void drawSearchResults() {
     }
 }
 void drawBook() {
-    char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookPublisher[MAXCHARLIM], bookPages[MAXCHARLIM], bookQty[MAXCHARLIM];
+    char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookPublisher[MAXCHARLIM], bookPages[MAXCHARLIM], bookQty[MAXCHARLIM], bookDate[MAXCHARLIM];
     int idx = E.sIdx == NULL ? E.cy : E.sIdx[E.cy];
     int len = snprintf(bookID, sizeof(bookID), "\x1b[33mBook ID:\x1b[m %d\r\n", E.books[idx].id);
     write(STDOUT_FILENO, bookID, len);
@@ -261,10 +272,12 @@ void drawBook() {
     write(STDOUT_FILENO, bookPublisher, len);
     len = snprintf(bookPages, sizeof(bookPages), "\x1b[33mNumber of Pages:\x1b[m %d\r\n", E.books[idx].pages);
     write(STDOUT_FILENO, bookPages, len);
+    len = snprintf(bookDate, sizeof(bookDate), "\x1b[33mPublication Date:\x1b[m %s\r\n", E.books[idx].pubDate);
+    write(STDOUT_FILENO, bookDate, len);
     len = snprintf(bookQty, sizeof(bookQty), "\x1b[33mCopies Available:\x1b[m %d\r\n", E.books[idx].qty);
     write(STDOUT_FILENO, bookQty, len);
     write(STDOUT_FILENO, "\x1b[m", 4);
-    for (int y = 0 ; y < E.screenrows - 6; ++y) {
+    for (int y = 0 ; y < E.screenrows - 7; ++y) {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
@@ -333,6 +346,17 @@ char *commandPrompt(char *prompt) {
     }
 }
 
+void issuePrompt(int i) {
+    int ret = issueBook(E.username, E.cy);
+    if (ret == 0) {
+        setCommandMsg("Successfully issued book number %d for user %s", i, E.username);
+        E.books[i].qty--;
+        updateBooks(E.books, E.nbooks);
+        renderBooks();
+    } else {
+        setCommandMsg("Coudln't issue book. Error Code: %d", ret);
+    }
+}
 void searchPrompt() {
     // This is a dummy search to test the command prompt feature.
     char* searchStr = NULL;
