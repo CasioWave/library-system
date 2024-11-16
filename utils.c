@@ -11,31 +11,36 @@ CSV readCSV(FILE * fp) {
     char *cell;
     int r, c;
     r = c = 0;
-    while(feof(fp) != 1) {
+    while(fgetc(fp) != EOF) {
+        fseek(fp, -1, SEEK_CUR);
         fgets(row, MAXCHAR, fp);
-        cell = strtok(row, ",");
-        if (r == 0) {
-            while (cell != NULL) {
-                cell = strtok(NULL, ",");
-                c++;
-            }
+        int len = strlen(row);
+        while((row[len-1] == ' ') || (row[len-1] == '\t') || (row[len-1] == '\n')) row[--len]='\0';
+        if (len > 0) {
+            cell = strtok(row, ",");
+                if (r == 0) {
+                    while (cell != NULL) {
+                        cell = strtok(NULL, ",");
+                        c++;
+                    }
+                }
+                if (r > 0) {
+                    if (r == 1) {
+                        csv.data = calloc(r, sizeof(char **));
+                    } 
+                    if (r > 1) {
+                        csv.data = reallocarray(csv.data, r, sizeof(char**));
+                    }
+                    csv.data[r - 1] = calloc(c, sizeof(char *));
+                    int cid = 0;
+                    while (cell != NULL) {
+                        csv.data[r - 1][cid] = strdup(cell);
+                        cell = strtok(NULL, ",");
+                        cid++;
+                    }
+                }
+                r++;
         }
-        if (r > 0) {
-            if (r == 1) {
-                csv.data = calloc(r, sizeof(char **));
-            } 
-            if (r > 1) {
-                csv.data = reallocarray(csv.data, r, sizeof(char**));
-            }
-            csv.data[r - 1] = calloc(c, sizeof(char *));
-            int cid = 0;
-            while (cell != NULL) {
-                csv.data[r - 1][cid] = strdup(cell);
-                cell = strtok(NULL, ",");
-                cid++;
-            }
-        }
-        r++;
     }
     csv.nrows = r - 1;
     csv.ncols = c;
