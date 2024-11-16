@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "utils.h"
-#define MAX_SOUNDEX_HASH 5
+#include <string.h>
+#include "soundex.h"
+#include <ctype.h>
+#include "search-utils.h"
 
-//Takes the filename of database and thesaurus, generates the soundex hashed dictionary and sanitized thesaurus 
-void preprocess(char* database, char* eng_thesaurus);
+#define MAX_LINE_LENGTH 10000
+#define MAX_TOKENS 100000
+
+char* stitch(int* arr, int count);
+int preprocess();
