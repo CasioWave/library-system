@@ -223,8 +223,8 @@ void renderSearchResults() {
     E.sRow = NULL;
     for (int i = 0; i < E.numResults; ++i) {
         char bookRec[MAXCHARLIM];
-        /* int len = snprintf(bookRec, sizeof(bookRec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.sIdx[i], E.books[E.sIdx[i]].title, E.books[E.sIdx[i]].authors, E.books[E.sIdx[i]].publisher, E.books[E.sIdx[i]].qty); */
-        int len = snprintf(bookRec, sizeof(bookRec), "%-7d|HAHAHA", E.sIdx[i]);
+        int len = snprintf(bookRec, sizeof(bookRec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.sIdx[i], E.books[E.sIdx[i]].title, E.books[E.sIdx[i]].authors, E.books[E.sIdx[i]].publisher, E.books[E.sIdx[i]].qty);
+        /* int len = snprintf(bookRec, sizeof(bookRec), "%-7d|HAHAHA", E.sIdx[i]); */
         appendSearchRow(bookRec, len);
     }
 }

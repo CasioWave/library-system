@@ -49,28 +49,29 @@ Book* fetchBooks(char * fname, int* nbooks) {
 void search(int** idx, int *numResults, Book** books, int nbooks, char* searchStr) {
     /* *numResults = fuzzy_search(searchStr, "dict_soundex.csv", idx); */
     /* *numResults = 5; */
-    /* *idx = NULL; */
-    /* int* results = fuzzy_search(searchStr, "dict_soundex.csv"); */
-    /* int i = 0; */
-    /* while(results[i] != -1){ */
-    /*     if (*idx == NULL){ */
-    /*         *idx = calloc(i+1, sizeof(int)); */
-    /*     } */
-    /*     else{ */
-    /*         *idx = reallocarray(*idx, i+1, sizeof(int)); */
-    /*     } */
-    /*     (*idx)[i] = results[i]; */
-    /*     ++i; */
-    /* } */
-    int c = 0;
-    for (int i = 0; i < nbooks; ++i) {
-        if (strcasestr((*books)[i].title, searchStr) != NULL) {
-            if (*idx == NULL) *idx = calloc(c + 1, sizeof(int));
-            else *idx = reallocarray(*idx, c + 1, sizeof(int));
-            (*idx)[c++] = i;
+    *idx = NULL;
+    int* results = fuzzy_search(searchStr, "dict_soundex.csv");
+    int i = 0;
+    while(results[i] != -1){
+        if (*idx == NULL){
+            *idx = calloc(i+1, sizeof(int));
         }
+        else{
+            *idx = reallocarray(*idx, i+1, sizeof(int));
+        }
+        (*idx)[i] = results[i];
+        ++i;
     }
-    *numResults = c;
+    *numResults = i;
+    /* int c = 0; */
+    /* for (int i = 0; i < nbooks; ++i) { */
+    /*     if (strcasestr((*books)[i].title, searchStr) != NULL) { */
+    /*         if (*idx == NULL) *idx = calloc(c + 1, sizeof(int)); */
+    /*         else *idx = reallocarray(*idx, c + 1, sizeof(int)); */
+    /*         (*idx)[c++] = i; */
+    /*     } */
+    /* } */
+    /* *numResults = c; */
 }
 
 int issueBook(char* uname, int bookID) {
