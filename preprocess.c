@@ -46,7 +46,7 @@ int preprocess() {
     
     while (fgets(line, 10000, file)) {
         if (line_count > 0) {  // Skip header
-            printf("%s\n",line);
+            //printf("%s\n",line);
             str_split(line, ',', col);
             
             //Processing tokens from the TITLE - has to be repeated for author and publisher
@@ -86,20 +86,20 @@ int preprocess() {
                 int loc = in_str_list(san_token_split[i], tokens, *no_unique_tokens);
                 
                 if (loc == -1){
-                    printf("NEW TITLE TOKEN! -> %s\n",san_token_split[i]);
+                    //printf("NEW TITLE TOKEN! -> %s\n",san_token_split[i]);
                     //New unique token found
                     soundex_hash(strong_san_token_split[i], soundex[*no_unique_tokens], 5); // Creating the new soundex hash
                     //printf("SOUNDEX ASSIGNED\n");
-                    printf("no_unique_tokens:%d\n",*no_unique_tokens);
+                    //printf("no_unique_tokens:%d\n",*no_unique_tokens);
                     copy_str(san_token_split[i], tokens[*no_unique_tokens]); //Copying the token that is unique
-                    printf("COPIED NEW TOKEN!\n");
+                    //printf("COPIED NEW TOKEN!\n");
                     types[*no_unique_tokens] = "title"; //Setting tthe type of this token
                     indices[*no_unique_tokens][0] = atoi(col[0]); //Setting the first index instance of the token
                     indices_end[*no_unique_tokens] += 1;
                     *no_unique_tokens += 1;
                 }
                 else{
-                    printf("OLD TITLE TOKEN FOUND! -> %s\n",san_token_split[i]);
+                    //printf("OLD TITLE TOKEN FOUND! -> %s\n",san_token_split[i]);
                     //The token here already exists in the unique token list
                     indices[loc][indices_end[loc]] = atoi(col[0]);
                     indices_end[loc] += 1; //Adding the token index to the existing index for indices
@@ -139,7 +139,7 @@ int preprocess() {
                 }
                 int loc = in_str_list(san_token_split[i], tokens, *no_unique_tokens);
                 if (loc == -1){
-                    printf("NEW AUTHOR TOKEN! -> %s\n",san_token_split[i]);
+                    //printf("NEW AUTHOR TOKEN! -> %s\n",san_token_split[i]);
                     //New unique token found
                     soundex_hash(strong_san_token_split[i], soundex[*no_unique_tokens], 5); // Creating the ew soundex hash
                     copy_str(san_token_split[i], tokens[*no_unique_tokens]); //Copying the token that is unique
@@ -149,7 +149,7 @@ int preprocess() {
                     *no_unique_tokens += 1;
                 }
                 else{
-                    printf("OLD AUTHOR TOKEN FOUND! -> %s\n",san_token_split[i]);
+                    //printf("OLD AUTHOR TOKEN FOUND! -> %s\n",san_token_split[i]);
                     //The token here already exists in the unique token list
                     indices[loc][indices_end[loc]] = atoi(col[0]);
                     indices_end[loc] += 1; //Adding the token index to the existing index for indices
@@ -180,7 +180,7 @@ int preprocess() {
                 }
                 int loc = in_str_list(san_token_split[i], tokens, *no_unique_tokens);
                 if (loc == -1){
-                    printf("NEW PUB TOKEN! -> %s\n",san_token_split[i]);
+                    //printf("NEW PUB TOKEN! -> %s\n",san_token_split[i]);
                     //New unique token found
                     soundex_hash(strong_san_token_split[i], soundex[*no_unique_tokens], 5); // Creating the ew soundex hash
                     copy_str(san_token_split[i], tokens[*no_unique_tokens]); //Copying the token that is unique
@@ -190,7 +190,7 @@ int preprocess() {
                     *no_unique_tokens += 1;
                 }
                 else{
-                    printf("OLD PUB TOKEN FOUND! -> %s\n",san_token_split[i]);
+                    //printf("OLD PUB TOKEN FOUND! -> %s\n",san_token_split[i]);
                     //The token here already exists in the unique token list
                     indices[loc][indices_end[loc]] = atoi(col[0]);
                     indices_end[loc] += 1; //Adding the token index to the existing index for indices
@@ -200,13 +200,9 @@ int preprocess() {
         ++line_count;
     }
     
-    for (int i = 0; i < *no_unique_tokens; ++i){
-        printf("%s (token) - %s (type) - %s (hash)\n",tokens[i],types[i],soundex[i]);
-    }
-
     fclose(file);
 
-    printf("DONE\n");
+    //printf("DONE\n");
     
     FILE* output = fopen("dict_soundex.csv", "w");
     if (output == NULL) {
