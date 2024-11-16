@@ -94,14 +94,14 @@ int preprocess() {
                     copy_str(san_token_split[i], tokens[*no_unique_tokens]); //Copying the token that is unique
                     printf("COPIED NEW TOKEN!\n");
                     types[*no_unique_tokens] = "title"; //Setting tthe type of this token
-                    indices[*no_unique_tokens][0] = line_count; //Setting the first index instance of the token
+                    indices[*no_unique_tokens][0] = atoi(col[0]); //Setting the first index instance of the token
                     indices_end[*no_unique_tokens] += 1;
                     *no_unique_tokens += 1;
                 }
                 else{
                     printf("OLD TITLE TOKEN FOUND! -> %s\n",san_token_split[i]);
                     //The token here already exists in the unique token list
-                    indices[loc][indices_end[loc]] = line_count;
+                    indices[loc][indices_end[loc]] = atoi(col[0]);
                     indices_end[loc] += 1; //Adding the token index to the existing index for indices
                 }
             }
@@ -144,14 +144,14 @@ int preprocess() {
                     soundex_hash(strong_san_token_split[i], soundex[*no_unique_tokens], 5); // Creating the ew soundex hash
                     copy_str(san_token_split[i], tokens[*no_unique_tokens]); //Copying the token that is unique
                     types[*no_unique_tokens] = "author"; //Setting tthe type of this token
-                    indices[*no_unique_tokens][0] = line_count; //Setting the first index instance of the token
+                    indices[*no_unique_tokens][0] = atoi(col[0]); //Setting the first index instance of the token
                     indices_end[*no_unique_tokens] += 1;
                     *no_unique_tokens += 1;
                 }
                 else{
                     printf("OLD AUTHOR TOKEN FOUND! -> %s\n",san_token_split[i]);
                     //The token here already exists in the unique token list
-                    indices[loc][indices_end[loc]] = line_count;
+                    indices[loc][indices_end[loc]] = atoi(col[0]);
                     indices_end[loc] += 1; //Adding the token index to the existing index for indices
                 }
             }
@@ -185,14 +185,14 @@ int preprocess() {
                     soundex_hash(strong_san_token_split[i], soundex[*no_unique_tokens], 5); // Creating the ew soundex hash
                     copy_str(san_token_split[i], tokens[*no_unique_tokens]); //Copying the token that is unique
                     types[*no_unique_tokens] = "pub"; //Setting tthe type of this token
-                    indices[*no_unique_tokens][0] = line_count; //Setting the first index instance of the token
+                    indices[*no_unique_tokens][0] = atoi(col[0]); //Setting the first index instance of the token
                     indices_end[*no_unique_tokens] += 1;
                     *no_unique_tokens += 1;
                 }
                 else{
                     printf("OLD PUB TOKEN FOUND! -> %s\n",san_token_split[i]);
                     //The token here already exists in the unique token list
-                    indices[loc][indices_end[loc]] = line_count;
+                    indices[loc][indices_end[loc]] = atoi(col[0]);
                     indices_end[loc] += 1; //Adding the token index to the existing index for indices
                 }
             }
