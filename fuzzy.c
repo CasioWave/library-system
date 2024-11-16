@@ -7,7 +7,7 @@
 #include "synonyms.h"
 
 //Returns an array of indices (matches with index in books-clean.csv) sorted by score, list terminated by -1
-int fuzzy_search(char* query, char* dict_file, int** ret){
+int* fuzzy_search(char* query, char* dict_file){
     FILE* dict = fopen(dict_file,"r");
     int* res = (int*) malloc(MAXRES * sizeof(int));
     float* scores = (float*) malloc(MAXRES * sizeof(float));
@@ -28,6 +28,7 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
     for (int i = 0; i < no_terms && i < MAXQUERY; ++i){
         sanitize(terms[i],san_terms[i]);
         strong_sanitize(terms[i],strong_san_terms[i]);
+        //printf("Term -> %s\n",san_terms[i]);
     }
     free(terms);
     char ** sound_hashes = string_arr_mallocer(MAXQUERY, SOUND_LEN+1);
@@ -58,6 +59,7 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
     int no_syns = 0;
     //Count the number of synonyms
     while (str_equal(syns[no_syns], "-1") != 1){
+        //printf("SYNONYM -> %s\n",syns[no_syns]);
         ++no_syns;
     }
     //Add the actual terms
@@ -67,10 +69,12 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
     for (int i = no_terms; i < no_terms+no_syns; ++i){
         final_terms[i] = strdup(syns[i-no_terms]);
     }
+    //printf("The set of final terms are ->\n");
     total_terms = no_syns+no_terms;
+    
     //free(syns);
     //free(san_terms);
-    
+    //printf("Fine till here!\n");
     //Main loop over dict
     int no_res = 0;
     while (feof(dict) == 0){
@@ -78,6 +82,7 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
         row[len(row)-1] = '\0'; //Removing the \n from the end
         //printf("Row is -> %s\n",row);
         str_split(row, ',', col);
+        //printf("ROW data -> %s\n",col[0]);
         //printf("TOKEN -> %s\n",col[0]);
         //printf("TYPE -> %s\n",col[1]);
         //printf("INDICES -> %s\n",col[2]);
@@ -95,6 +100,7 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
                 continue;
             }
             else{
+                //printf("DIRECT DM MATCH -> %s\n",col[0]);
                 int penalty = 0;
                 if (i >= no_terms){
                     penalty = SYN_PENALTY;
@@ -103,16 +109,26 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
                     int* loc = in_where(res, atoi(indexes[j]), 1000);
                     if (loc[0] == -1){
                         res[no_res] = atoi(indexes[j]);
-                        scores[no_res] = LEVWEIGHT*(1.0/((float)(lev+1))) - penalty;
+                        if (lev == 0){
+                            scores[no_res] = LEVWEIGHT*(1.0/((float)(lev+1))) - penalty + EXACT_BONUS;
+                        }
+                        else{
+                            scores[no_res] = LEVWEIGHT*(1.0/((float)(lev+1))) - penalty;
+                        }
                         //printf("(DM) NEW INDEX %d assigned score %f\n",res[no_res],scores[no_res]);
                         ++no_res;
                     }
                     else{
                         for (int r = 0; loc[r] != -1; ++r){
-                            scores[loc[r]] += LEVWEIGHT*(1.0/((float)(lev+1)));
+                            if (lev == 0){
+                                scores[loc[r]] += LEVWEIGHT*(1.0/((float)(lev+1))) + EXACT_BONUS;
+                            }
+                            else{
+                                scores[loc[r]] += LEVWEIGHT*(1.0/((float)(lev+1)));
+                            }
                         }
                     }
-                    free(loc);
+                    //free(loc);
                 }
             }
         }
@@ -146,7 +162,7 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
                             scores[loc[r]] += SOUNDWEIGHT*(1.0/(len_diff+1));
                         }
                     }
-                    free(loc);
+                    //free(loc);
                 }
             }
             else{
@@ -154,11 +170,11 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
             }
         }
     }
-    free(row);
-    free(col);
-    free(sound_hashes);
-    *ret = NULL;
-    *ret = (int*) malloc(no_res*sizeof(int));
+    //free(row);
+    //free(col);
+    //free(sound_hashes);
+    //*ret = NULL;
+    //*ret = (int*) malloc(no_res*sizeof(int));
     float** unsorted = (float**) malloc(no_res*sizeof(float*));
     int i;
     for (i = 0; i < no_res; ++i){
@@ -171,16 +187,17 @@ int fuzzy_search(char* query, char* dict_file, int** ret){
     }
     
     //printf("LENGTH(UNSORTED) = %d\n",no_res);
-    bubble2dsort(unsorted,no_res);
+    bubbleSortDescending(unsorted,no_res,2);
     //printf("SORTED!\n");
-    
+    int* resu = (int*) malloc((no_res+1)*sizeof(int));
     for (int i = 0; i < no_res; ++i){
-        (*ret)[i] = (int) unsorted[i][0];
-        //printf("%d\n",ret[i]);
+        resu[i] = (int) unsorted[i][0];
+        //printf("%d with weight %f\n",resu[i],unsorted[i][1]);
     }
     /* ret[no_res] = -1; */
     free(unsorted);
     //printf("%d no of results\n",no_res);
     fclose(dict);
-    return no_res;
+    resu[no_res] = -1; //Terminate
+    return resu;
 }

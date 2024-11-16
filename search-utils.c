@@ -79,7 +79,7 @@ int* in_where(int *l, int x, int length){
     loc[j] = -1;
     return loc;
 }
-
+/*
 int swap(float **x, int i, int j){
     //Swaps two elements of 2D array
     //printf("SWAP START!\n");
@@ -91,6 +91,27 @@ int swap(float **x, int i, int j){
     x[j][1] = temp2;
     //printf("SWAP SUCCESS!\n");
     return 0;
+}
+*/
+
+// Function to swap two rows in a 2D array
+void swapRows(float** arr, int i, int j, int cols) {
+    for (int k = 0; k < cols; k++) {
+        float temp = arr[i][k];
+        arr[i][k] = arr[j][k];
+        arr[j][k] = temp;
+    }
+}
+
+// Bubble sort function to sort in descending order based on the 2nd coordinate
+void bubbleSortDescending(float** arr, int rows, int cols) {
+    for (int i = 0; i < rows - 1; i++) {
+        for (int j = 0; j < rows - i - 1; j++) {
+            if (arr[j][1] < arr[j + 1][1]) { // Compare for descending order
+                swapRows(arr, j, j + 1, cols);
+            }
+        }
+    }
 }
 
 int in_str_list(char *str, char **l, int len_l){
@@ -105,7 +126,7 @@ int in_str_list(char *str, char **l, int len_l){
     }
     return -1;
 }
-
+/* 
 int bubble2dsort(float** unsorted, int l){
     //Sorts based on the 2nd axis
     int n = l;
@@ -122,7 +143,7 @@ int bubble2dsort(float** unsorted, int l){
     //printf("SORT SUCCESS!\n");
     return 0;
 }
-
+*/
 int str_equal(char *s1, char *s2){
     int i = len(s1);
     int j = len(s2);
