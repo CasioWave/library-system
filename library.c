@@ -3,7 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "fuzzy.h"
+
+#define ISSUE 1
+#define RETURN -1
 
 enum bookDataFields  {
     ID = 0,
@@ -67,4 +71,23 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
     }
     */
     /* *numResults = i; */
+}
+
+int issueBook(char* uname, int bookID) {
+    time_t t;
+    t = time(NULL);
+    struct tm* ptr;
+    ptr = localtime(&t);
+    char date[55];
+    int len = snprintf(date, sizeof(date), "%s", asctime(ptr));
+    FILE *fp = NULL;
+    fp = fopen("transanctions.csv", "a");
+    if (fp == NULL) return -1;
+    fprintf(fp, "\n%s,%d,%d,%s", uname, bookID, ISSUE, date);
+    fclose(fp);
+    return 0;
+}
+
+void updateBooks(Book* books, int nbooks) {
+    return;
 }

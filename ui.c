@@ -132,6 +132,9 @@ void handleKeyPress() {
         case '/':
             if (E.page == NORMAL) searchPrompt();
             break;
+        case 'i':
+            if (E.page == NORMAL) issuePrompt(E.cy);
+            break;
         default:
             break;
     }
@@ -335,6 +338,16 @@ char *commandPrompt(char *prompt) {
     }
 }
 
+void issuePrompt(int i) {
+    int ret = issueBook(E.username, E.cy);
+    if (ret == 0) {
+        setCommandMsg("Successfully issued book number %d for user %s", i, E.username);
+        /* E.books[i].qty--; */
+        /* updateBooks(E.books, E.nbooks); */
+    } else {
+        setCommandMsg("Coudln't issue book. Error Code: %d", ret);
+    }
+}
 void searchPrompt() {
     // This is a dummy search to test the command prompt feature.
     char* searchStr = NULL;
