@@ -47,3 +47,4 @@ void addPrompt();
 void editPrompt(int);
 int idtoIdx(int);
 int searchForID(int,int,int);
+void deletePrompt(int);

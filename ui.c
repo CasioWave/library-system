@@ -152,6 +152,15 @@ void handleKeyPress() {
                 }
             }
             break;
+        case 'd':
+            if (E.page == BOOK_VIEW && E.userPriv == ADMIN) {
+                if (E.sIdx == NULL) {
+                    deletePrompt(E.cy);
+                } else {
+                    deletePrompt(E.sIdx[E.cy]);
+                }
+            }
+            break;
         case 'a':
             if (E.page == NORMAL && E.userPriv == ADMIN) addPrompt();
             break;
@@ -338,6 +347,26 @@ char *commandPrompt(char *prompt) {
     }
 }
 
+void deletePrompt(int i) {
+    char* conf = NULL;
+    conf = commandPrompt("Are you sure you want to delete this book [y/n]: %s");
+    if (conf == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    if ((conf[0] != 'y') && (conf[0] != 'Y')) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    for (int j = i; j < E.nbooks - 1; ++j) E.books[j] = E.books[j + 1];
+    E.nbooks--;
+    E.books = realloc(E.books, E.nbooks*sizeof(Book));
+    E.page = NORMAL;
+    updateBooks(E.books, E.nbooks);
+    setCommandMsg("Deleted book with ID: %d", E.books[i].id);
+    return;
+
+}
 void addPrompt() {
     char* title = NULL;
     title = commandPrompt("Enter title: %s");
