@@ -194,6 +194,10 @@ void handleKeyPress() {
                 E.rowoff = 0;
                 E.page = DUES;
             }
+            break;
+        case 'r':
+            if (E.page == DUE_VIEW && E.userPriv != ADMIN) returnPrompt(E.cy);
+            break;
         default:
             break;
     }
@@ -233,11 +237,12 @@ void loadBooks() {
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
 }
 void loadDues() {
+    if (E.nDues > 0) free(E.dues);
+    E.dues = NULL;
+    E.nDues = 0;
     FILE* fp = fopen("transanctions.csv", "r");
     if (fp == NULL) die("Couldn't load dues");
     CSV data = readCSV(fp);
-    E.nDues = 0;
-    E.dues = NULL;
     for (int i = 0; i < data.nrows; ++i) {
         if ((E.userPriv == ADMIN) || (strcmp(data.data[i][0], E.username) == 0)) {
             Due rec;
@@ -252,6 +257,43 @@ void loadDues() {
     if (E.nDues > 0) free(data.data);
     fclose(fp);
 }
+
+void returnPrompt(int i) {
+    Due due = E.dues[i];
+    FILE* fp = NULL;
+    fp = fopen("transanctions.csv", "r");
+    CSV duesFile = readCSV(fp);
+    fclose(fp);
+    fp = NULL;
+    int idx = 0;
+    for (int i = 0; i < duesFile.nrows; ++i) {
+        if (strcmp(duesFile.data[i][0], due.uname) == 0 && atoi(duesFile.data[i][1]) == due.bookID) {
+            idx = i;
+            break;
+        }
+    }
+    fp = fopen("transanctions.csv", "w");
+    fprintf(fp, "%s,%s,%s,%s\n", "username", "bookID", "issue_date", "due_date");
+    fclose(fp);
+    fp = NULL;
+    fp = fopen("transanctions.csv", "a");
+    for (int i = 0; i < duesFile.nrows; ++i) {
+        if (i != idx) {
+            fprintf(fp, "\n");
+            for (int j = 0; j < duesFile.ncols; ++j) {
+                fprintf(fp, "%s", duesFile.data[i][j]);
+                if (j < duesFile.ncols -  1) fprintf(fp, ",");
+            }
+        }
+    }
+    fclose(fp);
+    E.books[idtoIdx(due.bookID)].qty++;
+    updateBooks(E.books, E.nbooks, 0);
+    loadDues();
+    E.page = DUES;
+    setCommandMsg("Returned the book with ID %d to the library.", due.bookID);
+}
+
 void statusBar() {
     write(STDOUT_FILENO, "\x1b[1;7m", 6);
     char status[80];
@@ -476,7 +518,7 @@ void deletePrompt(int i) {
     for (int j = i; j < E.nbooks - 1; ++j) E.books[j] = E.books[j + 1];
     E.nbooks--;
     E.books = realloc(E.books, E.nbooks*sizeof(Book));
-    updateBooks(E.books, E.nbooks);
+    updateBooks(E.books, E.nbooks, 1);
     E.page = NORMAL;
     free(E.sIdx);
     E.sIdx = NULL;
@@ -532,7 +574,7 @@ void addPrompt() {
     book.pages = atoi(copies);
     E.books = realloc(E.books, (E.nbooks + 1)*sizeof(Book));
     E.books[E.nbooks++] = book;
-    updateBooks(E.books, E.nbooks);
+    updateBooks(E.books, E.nbooks, 1);
     setCommandMsg("Added Book calld %s with ID %d",book.title, book.id);
 }
 void editPrompt(int i) {
@@ -549,15 +591,19 @@ void editPrompt(int i) {
     }
     char* val = NULL;
     val = commandPrompt("Enter the new value for this field: %s");
+    int flag = 0;
     switch (choice) {
         case 1:
             E.books[i].title = strdup(val);
+            flag = 1;
             break;
         case 2:
             E.books[i].authors = strdup(val);
+            flag = 1;
             break;
         case 3:
             E.books[i].publisher = strdup(val);
+            flag = 1;
             break;
         case 4:
             E.books[i].pubDate = strdup(val);
@@ -571,7 +617,7 @@ void editPrompt(int i) {
         default:
             break;
     }
-    updateBooks(E.books, E.nbooks);
+    updateBooks(E.books, E.nbooks, flag);
     setCommandMsg("Successfully Edited the book");
 }
 void issuePrompt(int i) {
@@ -601,7 +647,7 @@ void issuePrompt(int i) {
     if (ret == 0) {
         setCommandMsg("Successfully issued book number %d for user %s, for %d weeks.", E.books[i].id, E.username, n);
         E.books[i].qty--;
-        updateBooks(E.books, E.nbooks);
+        updateBooks(E.books, E.nbooks, 0);
         loadDues();
     } else {
         setCommandMsg("Coudln't issue book. Error Code: %d", ret);

@@ -51,3 +51,4 @@ void deletePrompt(int);
 void loadDues();
 void drawDues();
 void drawDueDeets();
+void returnPrompt(int);

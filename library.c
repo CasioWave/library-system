@@ -90,7 +90,7 @@ int issueBook(char* uname, int bookID, int nweeks) {
     return 0;
 }
 
-void updateBooks(Book* books, int nbooks) {
+void updateBooks(Book* books, int nbooks, int prep) {
     char row[MAXCHARLIM];
     int len = snprintf(row, sizeof(row), "%s,%s,%s,%s,%s,%s,%s", "bookID", "title", "authors", "num_pages", "publication_date", "publisher", "qty");
     FILE* fp = fopen("books-clean.csv", "w");
@@ -99,6 +99,6 @@ void updateBooks(Book* books, int nbooks) {
         fprintf(fp, "\n%d,%s,%s,%d,%s,%s,%d", books[i].id, books[i].title, books[i].authors, books[i].pages, books[i].pubDate, books[i].publisher, books[i].qty);
     }
     fclose(fp);
-    preprocess();
+    if (prep == 1) preprocess();
     return;
 }
