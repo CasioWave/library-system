@@ -234,7 +234,7 @@ void loadDues() {
             E.dues[E.nDues++] = rec;
         }
     }
-    free(data.data);
+    if (E.nDues > 0) free(data.data);
     fclose(fp);
 }
 void statusBar() {
@@ -285,6 +285,11 @@ void drawBooksTable() {
     }
 }
 void drawDues() {
+    if (E.nDues == 0) {
+        char rec[320];
+        int len = snprintf(rec, sizeof(rec), "No dues to show.");
+        write(STDOUT_FILENO, rec, len);
+    }
     for (int y = 0; y < E.screenrows; ++y) {
         int filerow = y + E.rowoff;
         if(filerow < E.nDues) {
