@@ -31,7 +31,7 @@ void init();
 int getWindowSize(int *, int *);
 int getCursorPosition(int*, int*);
 void drawBooksTable();
-void reloadBooks();
+void loadBooks();
 void scroll();
 void statusBar();
 void topBar();

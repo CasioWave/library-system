@@ -190,9 +190,7 @@ void moveCursor(int c) {
     }
     return;
 }
-void reloadBooks() {
-    free(E.books);
-    E.books = NULL;
+void loadBooks() {
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
 }
 void statusBar() {
@@ -388,7 +386,6 @@ void addPrompt() {
     E.books = realloc(E.books, (E.nbooks + 1)*sizeof(Book));
     E.books[E.nbooks++] = book;
     updateBooks(E.books, E.nbooks);
-    reloadBooks();
     setCommandMsg("Added Book calld %s with ID %d",book.title, book.id);
 }
 void editPrompt(int i) {
@@ -444,7 +441,6 @@ void issuePrompt(int i) {
         setCommandMsg("Successfully issued book number %d for user %s", E.books[i].id, E.username);
         E.books[i].qty--;
         updateBooks(E.books, E.nbooks);
-        reloadBooks();
     } else {
         setCommandMsg("Coudln't issue book. Error Code: %d", ret);
     }
@@ -520,7 +516,7 @@ void init() {
         exit(1);
         return;
     }
-    reloadBooks();
+    loadBooks();
     enableRawMode();
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
     E.screenrows -= 5;
