@@ -1,5 +1,5 @@
 bookID,title,authors,num_pages,publication_date,publisher,qty
-0,Harry Potter and the Half-Blood Prince (Harry Potter  #6),J.K. Rowling/Mary GrandPré,652,9/16/2006,Scholastic Inc.,4
+0,Harry Potter and the Half-Blood Prince (Harry Potter  #6),J.K. Rowling/Mary GrandPré,652,9/16/2006,Scholastic Inc.,3
 1,Harry Potter and the Order of the Phoenix (Harry Potter  #5),J.K. Rowling/Mary GrandPré,870,9/1/2004,Scholastic Inc.,1
 2,Harry Potter and the Chamber of Secrets (Harry Potter  #2),J.K. Rowling,352,11/1/2003,Scholastic,1
 3,Harry Potter and the Prisoner of Azkaban (Harry Potter  #3),J.K. Rowling/Mary GrandPré,435,5/1/2004,Scholastic Inc.,10
@@ -14,7 +14,7 @@ bookID,title,authors,num_pages,publication_date,publisher,qty
 12,A Short History of Nearly Everything,Bill Bryson,544,9/14/2004,Broadway Books,3
 13,Bill Bryson's African Diary,Bill Bryson,55,12/3/2002,Broadway Books,1
 14,Bryson's Dictionary of Troublesome Words: A Writer's Guide to Getting It Right,Bill Bryson,256,9/14/2004,Broadway Books,9
-15,In a Sunburned Country,Bill Bryson,335,5/15/2001,Broadway Books,4
+15,In a Sunburned Country,Bill Bryson,335,5/15/2001,Broadway Books,2
 16,I'm a Stranger Here Myself: Notes on Returning to America After Twenty Years Away,Bill Bryson,304,6/28/2000,Broadway Books,2
 17,The Lost Continent: Travels in Small Town America,Bill Bryson,299,8/28/1990,William Morrow Paperbacks,13
 18,Neither Here nor There: Travels in Europe,Bill Bryson,254,3/28/1993,William Morrow Paperbacks,3
@@ -24,7 +24,7 @@ bookID,title,authors,num_pages,publication_date,publisher,qty
 22,The Lord of the Rings (The Lord of the Rings  #1-3),J.R.R. Tolkien,1184,10/21/2004,Houghton Mifflin Harcourt,13
 23,The Fellowship of the Ring (The Lord of the Rings  #1),J.R.R. Tolkien,398,9/5/2003,Houghton Mifflin Harcourt,3
 24,The Lord of the Rings (The Lord of the Rings  #1-3),J.R.R. Tolkien/Alan  Lee,1216,10/1/2002,Houghton Mifflin Harcourt,11
-25,The Lord of the Rings: Weapons and Warfare,Chris   Smith/Christopher  Lee/Richard Taylor,218,11/5/2003,Houghton Mifflin Harcourt,8
+25,The Lord of the Rings: Weapons and Warfare,Chris   Smith/Christopher  Lee/Richard Taylor,218,11/5/2003,Houghton Mifflin Harcourt,7
 26,The Lord of the Rings: Complete Visual Companion,Jude Fisher,224,11/15/2004,Houghton Mifflin Harcourt,14
 27,Agile Web Development with Rails: A Pragmatic Guide,Dave Thomas/David Heinemeier Hansson/Leon Breedt/Mike Clark/Thomas  Fuchs/Andreas  Schwarz,558,7/28/2005,Pragmatic Bookshelf,3
 28,Hatchet (Brian's Saga  #1),Gary Paulsen,208,4/1/2000,Atheneum Books for Young Readers: Richard Jackson Books,11
@@ -1609,7 +1609,7 @@ bookID,title,authors,num_pages,publication_date,publisher,qty
 1607,Cliffs notes on Warren's All the King's Men,L. David Allen,80,1/13/1964,Cliffs Notes,14
 1608,All the King's Men: Three Stage Versions,Robert Penn Warren/James A. Perkins/James A. Grimshaw,264,7/4/2000,University of Georgia Press,8
 1609,Men's Health: Book of Muscle - The World's Most Complete Guide to Building Your Body,Ian King/Lou Schuler/Frederick Deluvier,364,10/17/2003,Rodale Books,6
-1610,Surely You're Joking  Mr. Feynman!: Adventures of a Curious Character,Richard P. Feynman,391,4/12/1997,W. W. Norton & Company,14
+1610,Surely You're Joking  Mr. Feynman!: Adventures of a Curious Character,Richard P. Feynman,391,4/12/1997,W. W. Norton & Company,13
 1611,The Feynman Lectures on Physics  3 Vols,Richard P. Feynman/Robert B. Leighton/Matthew L. Sands,3,1/1/1989,Addison Wesley Publishing Company,3
 1612,What Do You Care What Other People Think?,Richard P. Feynman,256,1/11/2001,W.W. Norton & Company,2
 1613,Perfectly Reasonable Deviations from the Beaten Track: Letters of Richard P. Feynman,Richard P. Feynman/Michelle Feynman,512,4/5/2005,Basic Books,8

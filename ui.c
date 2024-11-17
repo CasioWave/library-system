@@ -13,6 +13,9 @@
 #include "login.h"
 #include "utils.h"
 
+#define STUDLIM 8
+#define FACLIM 16
+
 #define MSGTIMEOUT 3
 #define MAXCHARLIM 5000
 
@@ -25,7 +28,8 @@ enum PAGES {
 typedef struct {
     char* uname;
     int bookID;
-    char* date;
+    time_t issueDate;
+    time_t dueDate;
 } Due;
 
 struct state {
@@ -229,7 +233,8 @@ void loadDues() {
             Due rec;
             rec.uname = strdup(data.data[i][0]);
             rec.bookID = atoi(data.data[i][1]);
-            rec.date = strdup(data.data[i][3]);
+            rec.issueDate = strtol(data.data[i][2], NULL, 10);
+            rec.dueDate = strtol(data.data[i][3], NULL, 10);
             E.dues = realloc(E.dues, (E.nDues+1)*sizeof(Due));
             E.dues[E.nDues++] = rec;
         }
@@ -260,7 +265,7 @@ void topBar() {
     if (E.page == BOOK_VIEW) {
         len = snprintf(top, sizeof(top), "Book Details");
     } else if (E.page == DUES){
-        len = snprintf(top, sizeof(top), "%-55.55s|%-20.20s|%-55.55s", "Username", "Book ID", "Date of Issue");
+        len = snprintf(top, sizeof(top), "%-55.55s|%-20.20s|%-55.55s|%-55.55s", "Username", "Book ID", "Issue Date", "Due Date");
     } else {
         len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
     }
@@ -294,8 +299,13 @@ void drawDues() {
         int filerow = y + E.rowoff;
         if(filerow < E.nDues) {
             if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
+            char issueDate[55], dueDate[55];
+            int len = snprintf(issueDate, sizeof(issueDate), "%s", ctime(&E.dues[filerow].issueDate));
+            issueDate[len-1] = '\0';
+            len = snprintf(dueDate, sizeof(dueDate), "%s", ctime(&E.dues[filerow].dueDate));
+            dueDate[len-1] = '\0';
             char rec[320];
-            int len = snprintf(rec, sizeof(rec), "%-55.55s|%-20d|%-55.55s", E.dues[filerow].uname, E.dues[filerow].bookID, E.dues[filerow].date);
+            len = snprintf(rec, sizeof(rec), "%-55.55s|%-20d|%-55.55s|%-55.55s", E.dues[filerow].uname, E.dues[filerow].bookID, issueDate, dueDate);
             write(STDOUT_FILENO, rec, len);
             for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
             if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
@@ -535,9 +545,13 @@ void issuePrompt(int i) {
         setCommandMsg("Less than 3 copies available. Only Faculty members can issue this book");
         return;
     }
-    int ret = issueBook(E.username, E.books[i].id);
+    int n = E.userPriv == FACULTY ? FACLIM : STUDLIM;
+    if (E.books[i].qty <= 5) {
+        n = n - (5 - E.books[i].qty);
+    }
+    int ret = issueBook(E.username, E.books[i].id, n);
     if (ret == 0) {
-        setCommandMsg("Successfully issued book number %d for user %s", E.books[i].id, E.username);
+        setCommandMsg("Successfully issued book number %d for user %s, for %d weeks.", E.books[i].id, E.username, n);
         E.books[i].qty--;
         updateBooks(E.books, E.nbooks);
         loadDues();
