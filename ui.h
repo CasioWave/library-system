@@ -18,11 +18,6 @@ enum cursorKeys {
     DEL_KEY
 };
 
-typedef struct erow {
-  int size;
-  char *chars;
-} erow;
-
 void disableRawMode();
 void enableRawMode();
 void die(char *);
@@ -35,9 +30,8 @@ void goToxy(int, int);
 void init();
 int getWindowSize(int *, int *);
 int getCursorPosition(int*, int*);
-void drawRows();
-void renderBooks();
-void appendRow(char*, size_t);
+void drawBooksTable();
+void reloadBooks();
 void scroll();
 void statusBar();
 void topBar();
@@ -47,9 +41,9 @@ void drawHelp();
 char* commandPrompt(char*);
 void setCommandMsg(const char*, ...);
 void searchPrompt();
-void appendSearchRow(char*, size_t);
-void renderSearchResults();
 void drawSearchResults();
 void issuePrompt(int);
 void addPrompt();
 void editPrompt(int);
+int idtoIdx(int);
+int searchForID(int,int,int);
