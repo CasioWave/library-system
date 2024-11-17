@@ -446,6 +446,10 @@ void drawCommand() {
             if (E.userPriv == ADMIN) len = snprintf(buf, sizeof(buf), "Press [d] to delete this book. Press [e] to edit this book\r\n");
             if (E.userPriv != ADMIN) len = snprintf(buf, sizeof(buf), "Press [i] to issue this book\r\n");
         }
+        if (E.page == DUE_VIEW) {
+            if (E.userPriv == ADMIN) len = snprintf(buf, sizeof(buf), "\r\n");
+            if (E.userPriv != ADMIN) len = snprintf(buf, sizeof(buf), "Press [r] to issue this book\r\n");
+        }
     }
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
@@ -465,7 +469,8 @@ void drawHelp() {
     if (E.page == NORMAL) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options.\r\n");
     if (E.page == SEARCH) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options. Press [ESC] to go back\r\n");
     if (E.page == BOOK_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
-    if (E.page == DUES) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
+    if (E.page == DUE_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
+    if (E.page == DUES) len = snprintf(buf, sizeof(buf), "Press [ENTER] to view Due Details and aditional options. Press [ESC] to go back.\r\n");
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
 }
