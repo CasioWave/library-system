@@ -10,6 +10,7 @@
 #define MAXCHARLIM 4000
 #define ISSUE 1
 #define RETURN -1
+#define WEEK 604800
 
 enum bookDataFields  {
     ID = 0,
@@ -74,18 +75,15 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
     /* *numResults = c; */
 }
 
-int issueBook(char* uname, int bookID) {
+int issueBook(char* uname, int bookID, int nweeks) {
     time_t t;
     t = time(NULL);
-    struct tm* ptr;
-    ptr = localtime(&t);
-    char date[55];
-    int len = snprintf(date, sizeof(date), "%s", asctime(ptr));
+    time_t dt = t + (nweeks * WEEK);
     FILE *fp = NULL;
     fp = fopen("transanctions.csv", "a");
     if (fp == NULL) return -1;
     char row[255];
-    len = snprintf(row, sizeof(row), "%s,%d,%d,%s", uname, bookID, ISSUE, date);
+    int len = snprintf(row, sizeof(row), "%s,%d,%ld,%ld", uname, bookID, t, dt);
     fwrite("\n", 1, 1, fp);
     fwrite(row, len, 1, fp);
     fclose(fp);

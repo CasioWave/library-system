@@ -13,5 +13,5 @@ typedef struct  {
 
 Book* fetchBooks(char*, int*);
 void search(int** idx, int *numResults, Book** books, int nbooks, char* searchStr);
-int issueBook(char* uname, int bookID);
+int issueBook(char* uname, int bookID, int nweeks);
 void updateBooks(Book *, int);
