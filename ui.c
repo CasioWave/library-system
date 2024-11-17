@@ -11,6 +11,7 @@
 #include "ui.h"
 #include "library.h"
 #include "login.h"
+#include "utils.h"
 
 #define MSGTIMEOUT 3
 #define MAXCHARLIM 5000
@@ -18,8 +19,15 @@
 enum PAGES {
     NORMAL=0,
     BOOK_VIEW,
-    SEARCH
+    SEARCH,
+    DUES
 };
+typedef struct {
+    char* uname;
+    int bookID;
+    char* date;
+} Due;
+
 struct state {
     int cx, cy, screenrows, screencols, rowoff, numResults;
     struct termios orig_term;
@@ -31,6 +39,8 @@ struct state {
     char commandBuf[MAXCHARLIM];
     time_t commandTime;
     int* sIdx;
+    Due* dues;
+    int nDues;
 };
 struct state E;
 
@@ -164,6 +174,12 @@ void handleKeyPress() {
         case 'a':
             if (E.page == NORMAL && E.userPriv == ADMIN) addPrompt();
             break;
+        case 'm':
+            if (E.page == NORMAL) {
+                E.cy = 0;
+                E.rowoff = 0;
+                E.page = DUES;
+            }
         default:
             break;
     }
@@ -188,7 +204,7 @@ void moveCursor(int c) {
             if (E.cy > 0) E.cy--;
             break;
         case ARROW_DOWN:
-            if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1)) E.cy++;
+            if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1) || (E.page == DUES && E.cy < E.nDues - 1)) E.cy++;
             break;
         case ARROW_LEFT:
             if (E.cx > 0) E.cx--;
@@ -201,6 +217,25 @@ void moveCursor(int c) {
 }
 void loadBooks() {
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
+}
+void loadDues() {
+    FILE* fp = fopen("transanctions.csv", "r");
+    if (fp == NULL) die("Couldn't load dues");
+    CSV data = readCSV(fp);
+    E.nDues = 0;
+    E.dues = NULL;
+    for (int i = 0; i < data.nrows; ++i) {
+        if ((E.userPriv == ADMIN) || (strcmp(data.data[i][0], E.username) == 0)) {
+            Due rec;
+            rec.uname = strdup(data.data[i][0]);
+            rec.bookID = atoi(data.data[i][1]);
+            rec.date = strdup(data.data[i][3]);
+            E.dues = realloc(E.dues, (E.nDues+1)*sizeof(Due));
+            E.dues[E.nDues++] = rec;
+        }
+    }
+    free(data.data);
+    fclose(fp);
 }
 void statusBar() {
     write(STDOUT_FILENO, "\x1b[1;7m", 6);
@@ -224,6 +259,8 @@ void topBar() {
     int len = 0;
     if (E.page == BOOK_VIEW) {
         len = snprintf(top, sizeof(top), "Book Details");
+    } else if (E.page == DUES){
+        len = snprintf(top, sizeof(top), "%-55.55s|%-20.20s|%-55.55s", "Username", "Book ID", "Date of Issue");
     } else {
         len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
     }
@@ -240,6 +277,22 @@ void drawBooksTable() {
             char rec[320];
             int len = snprintf(rec, sizeof(rec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.books[filerow].id, E.books[filerow].title, E.books[filerow].authors, E.books[filerow].publisher, E.books[filerow].qty);
             write(STDOUT_FILENO, rec, len);
+            for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
+        }
+        write(STDOUT_FILENO, "\x1b[K", 3);
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+}
+void drawDues() {
+    for (int y = 0; y < E.screenrows; ++y) {
+        int filerow = y + E.rowoff;
+        if(filerow < E.nDues) {
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
+            char rec[320];
+            int len = snprintf(rec, sizeof(rec), "%-55.55s|%-20d|%-55.55s", E.dues[filerow].uname, E.dues[filerow].bookID, E.dues[filerow].date);
+            write(STDOUT_FILENO, rec, len);
+            for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
             if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
         }
         write(STDOUT_FILENO, "\x1b[K", 3);
@@ -254,6 +307,7 @@ void drawSearchResults() {
             char rec[320];
             int len = snprintf(rec, sizeof(rec), "%-7d|%-55.55s|%-55.55s|%-55.55s|%d", E.books[E.sIdx[filerow]].id, E.books[E.sIdx[filerow]].title, E.books[E.sIdx[filerow]].authors, E.books[E.sIdx[filerow]].publisher, E.books[E.sIdx[filerow]].qty);
             write(STDOUT_FILENO, rec, len);
+            for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
             if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
         }
         write(STDOUT_FILENO, "\x1b[K", 3);
@@ -479,6 +533,7 @@ void issuePrompt(int i) {
         setCommandMsg("Successfully issued book number %d for user %s", E.books[i].id, E.username);
         E.books[i].qty--;
         updateBooks(E.books, E.nbooks);
+        loadDues();
     } else {
         setCommandMsg("Coudln't issue book. Error Code: %d", ret);
     }
@@ -536,6 +591,7 @@ void refreshScreen() {
     if (E.page == NORMAL) drawBooksTable();
     if (E.page == BOOK_VIEW) drawBook();
     if (E.page == SEARCH) drawSearchResults();
+    if (E.page == DUES) drawDues();
     statusBar();
     drawCommand();
     drawHelp();
@@ -555,6 +611,7 @@ void init() {
         return;
     }
     loadBooks();
+    loadDues();
     enableRawMode();
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
     E.screenrows -= 5;
