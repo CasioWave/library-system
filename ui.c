@@ -290,7 +290,12 @@ void drawCommand() {
     if (time(NULL) - E.commandTime < MSGTIMEOUT) {
         len = snprintf(buf, sizeof(buf), "%s\r\n", E.commandBuf);
     } else {
-        len = snprintf(buf, sizeof(buf), "Press / to start a search\r\n");
+        if (E.page == NORMAL) len = snprintf(buf, sizeof(buf), "Press / to start a search\r\n");
+        if (E.page == SEARCH) len = snprintf(buf, sizeof(buf), "\r\n");
+        if (E.page == BOOK_VIEW) {
+            if (E.userPriv == ADMIN) len = snprintf(buf, sizeof(buf), "Press [d] to delete this book. Press [e] to edit this book\r\n");
+            if (E.userPriv != ADMIN) len = snprintf(buf, sizeof(buf), "Press [i] to issue this book\r\n");
+        }
     }
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
@@ -307,7 +312,8 @@ void drawHelp() {
     char buf[MAXCHARLIM];
     int len = 0;
     write(STDOUT_FILENO, "\x1b[32m", 5);
-    if (E.page == NORMAL) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details\r\n");
+    if (E.page == NORMAL) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options.\r\n");
+    if (E.page == SEARCH) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options. Press [ESC] to go back\r\n");
     if (E.page == BOOK_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
