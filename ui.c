@@ -361,8 +361,11 @@ void deletePrompt(int i) {
     for (int j = i; j < E.nbooks - 1; ++j) E.books[j] = E.books[j + 1];
     E.nbooks--;
     E.books = realloc(E.books, E.nbooks*sizeof(Book));
-    E.page = NORMAL;
     updateBooks(E.books, E.nbooks);
+    E.page = NORMAL;
+    free(E.sIdx);
+    E.sIdx = NULL;
+    E.numResults = 0;
     setCommandMsg("Deleted book with ID: %d", E.books[i].id);
     return;
 
