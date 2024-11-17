@@ -16,6 +16,9 @@
 #define STUDLIM 8
 #define FACLIM 16
 
+#define STUDILIM 5
+#define FACILIM 10
+
 #define MSGTIMEOUT 3
 #define MAXCHARLIM 5000
 
@@ -205,7 +208,7 @@ int idtoIdx(int id) {
 void moveCursor(int c) {
     switch (c) {
         case ARROW_UP:
-            if (E.cy > 0) E.cy--;
+            if (E.cy > 0 && (E.page == NORMAL || E.page == DUES || E.page == SEARCH) ) E.cy--;
             break;
         case ARROW_DOWN:
             if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1) || (E.page == DUES && E.cy < E.nDues - 1)) E.cy++;
@@ -544,6 +547,16 @@ void issuePrompt(int i) {
     if (E.books[i].qty <= 3 && E.userPriv != FACULTY) {
         setCommandMsg("Less than 3 copies available. Only Faculty members can issue this book");
         return;
+    }
+    if ((E.userPriv == FACULTY && E.nDues == FACILIM) || (E.userPriv == STUDENT && E.nDues == STUDILIM)) {
+        setCommandMsg("You cant issue more books. You have reached the maximum limit");
+        return;
+    }
+    for (int j = 0; j < E.nDues; ++j) {
+        if (E.books[i].id == E.dues[j].bookID) {
+            setCommandMsg("You can't issue the same book multiple times");
+            return;
+        }
     }
     int n = E.userPriv == FACULTY ? FACLIM : STUDLIM;
     if (E.books[i].qty <= 5) {
