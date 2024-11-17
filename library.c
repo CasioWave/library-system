@@ -51,7 +51,7 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
     /* *numResults = fuzzy_search(searchStr, "dict_soundex.csv", idx); */
     /* *numResults = 5; */
     *idx = NULL;
-    int* results = fuzzy_search(searchStr, "dict_soundex.csv");
+    int* results = fuzzy_search(searchStr, 0, "dict_soundex.csv");
     int i = 0;
     while(results[i] != -1){
         if (*idx == NULL){
