@@ -26,7 +26,8 @@ enum PAGES {
     NORMAL=0,
     BOOK_VIEW,
     SEARCH,
-    DUES
+    DUES,
+    DUE_VIEW
 };
 typedef struct {
     char* uname;
@@ -137,11 +138,17 @@ void handleKeyPress() {
             moveCursor(c);
             break;
         case '\r':
-            E.page = BOOK_VIEW;
+            if (E.page == NORMAL || E.page == SEARCH) {
+                E.page = BOOK_VIEW;
+            } else if (E.page == DUES) {
+                E.page = DUE_VIEW;
+            }
             break;
         case '\x1b':
             if (E.sIdx != NULL && E.page == BOOK_VIEW) {
                 E.page = SEARCH;
+            } else if (E.page == DUE_VIEW) {
+                E.page = DUES;
             } else {
                 E.page = NORMAL;
                 free(E.sIdx);
@@ -267,6 +274,8 @@ void topBar() {
     int len = 0;
     if (E.page == BOOK_VIEW) {
         len = snprintf(top, sizeof(top), "Book Details");
+    } else if (E.page == DUE_VIEW) {
+        len = snprintf(top, sizeof(top), "Due Details");
     } else if (E.page == DUES){
         len = snprintf(top, sizeof(top), "%-55.55s|%-20.20s|%-55.55s|%-55.55s", "Username", "Book ID", "Issue Date", "Due Date");
     } else {
@@ -314,6 +323,32 @@ void drawDues() {
             if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
         }
         write(STDOUT_FILENO, "\x1b[K", 3);
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+}
+void drawDueDeets() {
+    Due due = E.dues[E.cy];
+    Book book = E.books[idtoIdx(due.bookID)];
+    char dueDate[55], issueDate[55];
+    int len = snprintf(issueDate, sizeof(issueDate), "%s", ctime(&due.issueDate));
+    issueDate[len-1] = '\0';
+    len = snprintf(dueDate, sizeof(dueDate), "%s", ctime(&due.dueDate));
+    dueDate[len-1] = '\0';
+    char bookID[MAXCHARLIM], bookTitle[MAXCHARLIM], bookAuthor[MAXCHARLIM], bookDueDate[MAXCHARLIM], bookIssueDate[MAXCHARLIM], user[MAXCHARLIM];
+    len = snprintf(user, sizeof(user), "\x1b[33mUsername:\x1b[m %s\r\n", due.uname);
+    write(STDOUT_FILENO, user, len);
+    len = snprintf(bookID, sizeof(bookID), "\x1b[33mBook ID:\x1b[m %d\r\n", book.id);
+    write(STDOUT_FILENO, bookID, len);
+    len = snprintf(bookTitle, sizeof(bookTitle), "\x1b[33mBook Title:\x1b[m %s\r\n", book.title);
+    write(STDOUT_FILENO, bookTitle, len);
+    len = snprintf(bookAuthor, sizeof(bookAuthor), "\x1b[33mBook Authors:\x1b[m %s\r\n", book.authors);
+    write(STDOUT_FILENO, bookAuthor, len);
+    len = snprintf(bookIssueDate, sizeof(bookIssueDate), "\x1b[33mIssue Date:\x1b[m %s\r\n", issueDate);
+    write(STDOUT_FILENO, bookIssueDate, len);
+    len = snprintf(bookDueDate, sizeof(bookDueDate), "\x1b[33mDue Date:\x1b[m %s\r\n", dueDate);
+    write(STDOUT_FILENO, bookDueDate, len);
+    write(STDOUT_FILENO, "\x1b[m", 4);
+    for (int y = 0 ; y < E.screenrows - 6; ++y) {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
@@ -626,6 +661,7 @@ void refreshScreen() {
     if (E.page == BOOK_VIEW) drawBook();
     if (E.page == SEARCH) drawSearchResults();
     if (E.page == DUES) drawDues();
+    if (E.page == DUE_VIEW) drawDueDeets();
     statusBar();
     drawCommand();
     drawHelp();
