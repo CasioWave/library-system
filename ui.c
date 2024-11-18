@@ -784,7 +784,7 @@ void refreshScreen() {
 void init() {
     E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
     E.sIdx = NULL;
-    snprintf(E.commandBuf, sizeof(E.commandBuf), "Press [/] to start a search. Press [m] to show issued books.\r\n");
+    setCommandMsg("Press [/] to start a search. Press [m] to show issued books.");
     E.commandTime = time(NULL);
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
         printf("Login Failed!!");
