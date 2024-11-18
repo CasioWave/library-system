@@ -248,9 +248,32 @@ void handleKeyPress() {
         case 'p':
             if (E.page == USERS) changeUserPriv(E.cy, 1);
             break;
+        case ':':
+            if (E.page == NORMAL) {
+                searchByID();
+                break;
+            }
         default:
             break;
     }
+}
+
+void searchByID() {
+    char* buf;
+    buf = commandPrompt("Enter the ID: %s");
+    if (buf == NULL) {
+        setCommandMsg("Operation Aborted");
+        return;
+    }
+    int id = atoi(buf);
+    int i = idtoIdx(id);
+    if (i == -1) {
+        setCommandMsg("Couldn't find a book with that ID");
+        return;
+    }
+    E.cy = i;
+    free(buf);
+    return;
 }
 
 int idtoIdx(int id) {
