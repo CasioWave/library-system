@@ -13,7 +13,7 @@ User* fetchUsers(char *filename) {
     CSV userData;
     userData = readCSV(fp);
     fclose(fp);
-
+    if (userData.nrows == 0) return NULL;
     User* users;
     users = calloc(userData.nrows, sizeof(User));
 
@@ -24,6 +24,10 @@ User* fetchUsers(char *filename) {
     }
 
     NUSERS = userData.nrows;
+    for (int i = 0; i < userData.nrows; ++i) {
+        free(userData.data[i]);
+    }
+    free(userData.data);
 
     return users;
 }
@@ -51,5 +55,10 @@ int login(int *priv, char ** uname) {
            }
        }
     }
+    for (int i = 0; i < NUSERS; ++i) {
+        free(users[i].password);
+        free(users[i].username);
+    }
+    free(users);
     return LOGIN_FAILURE;
 }

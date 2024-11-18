@@ -31,6 +31,7 @@ Book* fetchBooks(char * fname, int* nbooks) {
 
     bookData = readCSV(fp);
     fclose(fp);
+    if (bookData.nrows == 0) return NULL;
     *nbooks = bookData.nrows;
     books = calloc(bookData.nrows, sizeof(Book));
 
@@ -44,6 +45,10 @@ Book* fetchBooks(char * fname, int* nbooks) {
         books[i].qty = atoi(bookData.data[i][QTY]);
 
     }
+    for (int i = 0; i < bookData.nrows; ++i) {
+        free(bookData.data[i]);
+    }
+    free(bookData.data);
     return books;
 }
 
@@ -64,6 +69,7 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
         ++i;
     }
     *numResults = i;
+    free(results);
     /* int c = 0; */
     /* for (int i = 0; i < nbooks; ++i) { */
     /*     if (strcasestr((*books)[i].title, searchStr) != NULL) { */
@@ -90,6 +96,7 @@ void advancedSearch(int** idx, int *numResults, Book** books, int nbooks, char* 
         ++i;
     }
     *numResults = i;
+    free(results);
 }
 
 int issueBook(char* uname, int bookID, int nweeks) {
