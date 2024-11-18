@@ -18,3 +18,4 @@ typedef struct {
 
 User* fetchUsers(char*);
 int login(int *, char**);
+void registerUser(char*, char*);

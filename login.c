@@ -45,9 +45,10 @@ int login(int *priv, char ** uname) {
 
     User* users;
     users = fetchUsers("users.csv");
-
+    int usrMatch = 0;
     for (int i = 0; i < NUSERS; ++i) {
        if (strcmp(users[i].username, username) == 0) {
+           usrMatch++;
            if (strcmp(users[i].password, password) == 0) {
                *uname = strdup(username);
                *priv = users[i].priv;
@@ -55,10 +56,26 @@ int login(int *priv, char ** uname) {
            }
        }
     }
+    if (usrMatch == 0) {
+        char choice[LOGIN_MAXLIM];
+        printf("You seem to be a new user. Would you like to create an account ? (y/n): ");
+        fgets(choice, LOGIN_MAXLIM, stdin);
+        if (choice[0] == 'y' || choice[1] == 'Y') {
+            registerUser(username, password);
+            printf("You have been signed up as a student. To change your priviledges, contact the admin. Run the app again to login.\n");
+        } 
+    }
     for (int i = 0; i < NUSERS; ++i) {
         free(users[i].password);
         free(users[i].username);
     }
     free(users);
     return LOGIN_FAILURE;
+}
+
+void registerUser(char* username, char* password) {
+    FILE* fp = NULL;
+    fp = fopen("users.csv", "a");
+    fprintf(fp, "\n%s,%s,%d", username, password, STUDENT);
+    fclose(fp);
 }
