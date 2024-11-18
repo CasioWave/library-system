@@ -281,11 +281,13 @@ void loadDues() {
             rec.dueDate = strtol(data.data[i][3], NULL, 10);
             E.dues = realloc(E.dues, (E.nDues+1)*sizeof(Due));
             E.dues[E.nDues++] = rec;
+            free(rec.uname);
         }
     }
     if (E.nDues > 0) {
         for (int i = 0; i < data.nrows; ++i) free(data.data[i]);
     }
+    free(data.data);
     fclose(fp);
 }
 
@@ -611,6 +613,10 @@ void addPrompt() {
     E.books = realloc(E.books, (E.nbooks + 1)*sizeof(Book));
     E.books[E.nbooks++] = book;
     updateBooks(E.books, E.nbooks, 1);
+    free(book.title);
+    free(book.authors);
+    free(book.publisher);
+    free(book.pubDate);
     setCommandMsg("Added Book calld %s with ID %d",book.title, book.id);
 }
 void editPrompt(int i) {
@@ -654,6 +660,7 @@ void editPrompt(int i) {
             break;
     }
     updateBooks(E.books, E.nbooks, flag);
+    free(val);
     setCommandMsg("Successfully Edited the book");
 }
 void issuePrompt(int i) {
@@ -760,6 +767,9 @@ void advancedSearchPrompt() {
         E.rowoff = 0;
         E.cy = 0;
     }
+    free(title);
+    free(author);
+    free(publisher);
 }
 
 void scroll() {
