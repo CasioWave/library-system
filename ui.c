@@ -142,12 +142,12 @@ void freeDues() {
     free(E.dues);
 }
 void quitApp() {
-    freeBooks();
-    freeDues();
-    if (E.numResults > 0) free(E.sIdx);
-    free(E.username);
     resetScreen();
     disableRawMode();
+    freeBooks();
+    /* freeDues(); */
+    if (E.numResults > 0) free(E.sIdx);
+    free(E.username);
     exit(0);
 }
 
@@ -281,7 +281,7 @@ void loadDues() {
             rec.dueDate = strtol(data.data[i][3], NULL, 10);
             E.dues = realloc(E.dues, (E.nDues+1)*sizeof(Due));
             E.dues[E.nDues++] = rec;
-            free(rec.uname);
+            /* free(rec.uname); */
         }
     }
     if (E.nDues > 0) {
