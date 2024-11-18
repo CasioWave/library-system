@@ -272,7 +272,7 @@ void moveCursor(int c) {
             if (E.cy > 0 && (E.page == NORMAL || E.page == DUES || E.page == SEARCH || E.page == USERS)) E.cy--;
             break;
         case ARROW_DOWN:
-            if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1) || (E.page == DUES && E.cy < E.nDues - 1) || (E.page == USERS && E.nUsers)) E.cy++;
+            if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1) || (E.page == DUES && E.cy < E.nDues - 1) || (E.page == USERS && E.cy < E.nUsers - 1)) E.cy++;
             break;
         case ARROW_LEFT:
             if (E.cx > 0) E.cx--;
@@ -579,6 +579,7 @@ void drawCommand() {
         if (E.page == NORMAL) len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.\r\n");
         if (E.page == SEARCH) len = snprintf(buf, sizeof(buf), "\r\n");
         if (E.page == DUES) len = snprintf(buf, sizeof(buf), "\r\n");
+        if (E.page == USERS) len = snprintf(buf, sizeof(buf), "Press [p] to promote the user, or [d] to demote user.\r\n");
         if (E.page == BOOK_VIEW) {
             if (E.userPriv == ADMIN) len = snprintf(buf, sizeof(buf), "Press [d] to delete this book. Press [e] to edit this book\r\n");
             if (E.userPriv != ADMIN) len = snprintf(buf, sizeof(buf), "Press [i] to issue this book\r\n");
@@ -608,6 +609,7 @@ void drawHelp() {
     if (E.page == BOOK_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
     if (E.page == DUE_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
     if (E.page == DUES) len = snprintf(buf, sizeof(buf), "Press [ENTER] to view Due Details and aditional options. Press [ESC] to go back.\r\n");
+    if (E.page == USERS) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back.\r\n");
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
 }
