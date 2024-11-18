@@ -122,10 +122,28 @@ int readKeyPress() {
     }
     return c;
 }
-
+void freeBooks() {
+    if (E.nbooks > 0) {
+        for (int i = 0; i < E.nbooks; ++i) {
+            free(E.books[i].title);
+            free(E.books[i].authors);
+            free(E.books[i].publisher);
+            free(E.books[i].pubDate);
+        }
+    }
+    free(E.books);
+}
+void freeDues() {
+    if (E.nDues > 0) {
+        for (int i = 0; i < E.nDues; ++i) {
+            free(E.dues[i].uname);
+        }
+    }
+    free(E.dues);
+}
 void quitApp() {
-    if (E.nbooks > 0) free(E.books);
-    if (E.nDues > 0) free(E.dues);
+    freeBooks();
+    freeDues();
     if (E.numResults > 0) free(E.sIdx);
     free(E.username);
     resetScreen();
@@ -248,7 +266,7 @@ void loadBooks() {
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
 }
 void loadDues() {
-    if (E.nDues > 0) free(E.dues);
+    if (E.nDues > 0) freeDues();
     E.dues = NULL;
     E.nDues = 0;
     FILE* fp = fopen("transanctions.csv", "r");
@@ -265,7 +283,9 @@ void loadDues() {
             E.dues[E.nDues++] = rec;
         }
     }
-    if (E.nDues > 0) free(data.data);
+    if (E.nDues > 0) {
+        for (int i = 0; i < data.nrows; ++i) free(data.data[i]);
+    }
     fclose(fp);
 }
 

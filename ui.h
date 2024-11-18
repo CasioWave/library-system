@@ -54,3 +54,5 @@ void drawDueDeets();
 void returnPrompt(int);
 void quitApp();
 void advancedSearchPrompt();
+void freeBooks();
+void freeDues();
