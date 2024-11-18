@@ -6,8 +6,166 @@
 #include "fuzzy.h"
 #include "synonyms.h"
 
+int* advanced_search(char* title, char* author, char* pub, char* dict_file){
+    int* res_title = (int*) malloc(1000*sizeof(int));
+    int* res_author = (int*) malloc(1000*sizeof(int));
+    int* res_pub = (int*) malloc(1000*sizeof(int));
+    
+    //Search for the title
+    if (title[0] != '\0'){
+        res_title = fuzzy_search(title, 1, dict_file);
+    }
+    else{
+        res_title[0] = -1;
+    }
+    
+    //Search for the author
+    if (author[0] != '\0'){
+        res_author = fuzzy_search(author, 2, dict_file);
+    }
+    else{
+        res_title[0] = -1;
+    }
+    
+    //Search for the publisher
+    if (pub[0] != '\0'){
+        res_pub = fuzzy_search(pub, 3, dict_file);
+    }
+    else{
+        res_pub[0] = -1;
+    }
+    
+    int i = 0, j = 0, k = 0;
+    // Now, we have to find all the indices that are present in all of the result lists AND assign them scores weighed by where they were in their parent lists
+    int* final_res = (int*) malloc(1000*sizeof(int));
+    int res_size = 0;
+    int size_title = 0, size_author = 0, size_pub = 0;
+    for (int i = 0; res_title[i] != -1; ++i){
+        size_title += 1;
+    }
+    for (int i = 0; res_author[i] != -1; ++i){
+        size_author += 1;
+    }
+    for (int i = 0; res_pub[i] != -1; ++i){
+        size_pub += 1;
+    }
+    
+    int in_title = 0, in_author = 0, in_pub = 0;
+    int* scores = (int*) malloc(1000*sizeof(int));
+    //Ideal case where all the terms are supplied and results are non-zero
+    if (size_title != 0 && size_author != 0 && size_pub != 0){
+        for (int i = 0; i < size_title; ++i){
+            int t = res_title[i];
+            for (int j = 0; j < size_author; ++j){
+                int a = res_author[j];
+                if (t != a){
+                    continue;
+                }
+                for (int k = 0; k < size_pub; ++k){
+                    int p = res_pub[k];
+                    if (t == p){
+                        final_res[res_size] = t;
+                        scores[res_size] = 1000 - i - j - k;
+                        ++res_size;
+                        break;
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    //Case where one of the result sizes is zero
+    // Case where size_title == 0
+    else if (size_title == 0 && size_author != 0 && size_pub != 0){
+        for (int i = 0; i < size_author; ++i){
+            int a = res_author[i];
+            for (int j = 0; j < size_pub; ++j){
+                int p = res_pub[j];
+                if (a == p){
+                    final_res[res_size] = a;
+                    scores[res_size] = 1000 - i - j;
+                    ++res_size;
+                    break;
+                }
+                else{
+                    continue;
+                }
+            }
+        }
+    }
+    //Case where size_author == 0
+    else if (size_author == 0 && size_title != 0 && size_pub != 0){
+        for (int i = 0; i < size_title; ++i){
+            int t = res_title[i];
+            for (int j = 0; j < size_pub; ++j){
+                int p = res_pub[j];
+                if (t == p){
+                    final_res[res_size] = t;
+                    scores[res_size] = 1000 - i - j;
+                    ++res_size;
+                    break;
+                }
+                else{
+                    continue;
+                }
+            }
+        }
+    }
+    //Case where size_pub == 0
+    else if (size_pub == 0 && size_title != 0 && size_author != 0){
+        for (int i = 0; i < size_title; ++i){
+            int t = res_title[i];
+            for (int j = 0; j < size_author; ++j){
+                int a = res_author[j];
+                if (t == a){
+                    final_res[res_size] = t;
+                    scores[res_size] = 1000 - i - j;
+                    ++res_size;
+                    break;
+                }
+                else{
+                    continue;
+                }
+            }
+        }
+    }
+    //Case where all except one search term is zero
+    else if (size_title != 0 && size_author == 0 && size_pub == 0){
+        return res_title;
+    }
+    else if (size_author != 0 && size_title == 0 && size_pub == 0){
+        return res_author;
+    }
+    else if (size_pub != 0 && size_title == 0 && size_author == 0){
+        return res_pub;
+    }
+    else{
+        final_res[0] = -1;
+        return final_res;
+    }
+    
+    //Now that we have gone over the trivial cases, we sort the array to get the final result
+    float** unsorted = (float**) malloc(1000*sizeof(float*));
+    for (int i = 0; i < 1000; ++i){
+        unsorted[i] = (float*) malloc(2*sizeof(float));
+    }
+    for (int i = 0; i < res_size; ++i){
+        unsorted[i][0] = (float) final_res[i];
+        unsorted[i][1] = (float) scores[i];
+    }
+    bubbleSortDescending(unsorted,res_size,2);
+    int* resu = (int*) malloc((res_size+1)*sizeof(int));
+    for (int i = 0; i < res_size; ++i){
+        resu[i] = (int) unsorted[i][0];
+    }
+    resu[res_size] = -1;
+    return resu;
+}
+
 //Returns an array of indices (matches with index in books-clean.csv) sorted by score, list terminated by -1
-int* fuzzy_search(char* query, char* dict_file){
+int* fuzzy_search(char* query, int cat, char* dict_file){
     FILE* dict = fopen(dict_file,"r");
     int* res = (int*) malloc(MAXRES * sizeof(int));
     float* scores = (float*) malloc(MAXRES * sizeof(float));
@@ -82,6 +240,33 @@ int* fuzzy_search(char* query, char* dict_file){
         row[len(row)-1] = '\0'; //Removing the \n from the end
         //printf("Row is -> %s\n",row);
         str_split(row, ',', col);
+        if (cat == 0){
+            ;
+        }
+        else if (cat == 1){
+            if (str_equal(col[1], "title")){
+                ;
+            }
+            else{
+                continue;
+            }
+        }
+        else if (cat == 2){
+            if (str_equal(col[1], "author")){
+                ;
+            }
+            else{
+                continue;
+            }
+        }
+        else if (cat == 3){
+            if (str_equal(col[1], "pub")){
+                ;
+            }
+            else{
+                continue;
+            }
+        }
         //printf("ROW data -> %s\n",col[0]);
         //printf("TOKEN -> %s\n",col[0]);
         //printf("TYPE -> %s\n",col[1]);
