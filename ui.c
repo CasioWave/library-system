@@ -123,13 +123,21 @@ int readKeyPress() {
     return c;
 }
 
+void quitApp() {
+    if (E.nbooks > 0) free(E.books);
+    if (E.nDues > 0) free(E.dues);
+    if (E.numResults > 0) free(E.sIdx);
+    free(E.username);
+    resetScreen();
+    disableRawMode();
+    exit(0);
+}
+
 void handleKeyPress() {
     int c = readKeyPress();
     switch (c) {
         case CTRL_Key('q'):
-            resetScreen();
-            disableRawMode();
-            exit(0);
+            quitApp();
             break;
         case ARROW_UP:
         case ARROW_DOWN:
@@ -668,8 +676,9 @@ void searchPrompt() {
     }
     int len = strlen(searchStr);
     while (searchStr[len - 1] == ' ' || searchStr[len - 1] == '\t') searchStr[--len] = '\0';
-    E.numResults = 0;
+    if (E.numResults > 0) free(E.sIdx);
     E.sIdx = NULL;
+    E.numResults = 0;
     search(&E.sIdx, &E.numResults, &E.books, E.nbooks, searchStr);
     for (int i = 0; i < E.numResults; ++i) {
         E.sIdx[i] = idtoIdx(E.sIdx[i]);

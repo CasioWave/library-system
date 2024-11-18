@@ -52,3 +52,4 @@ void loadDues();
 void drawDues();
 void drawDueDeets();
 void returnPrompt(int);
+void quitApp();
