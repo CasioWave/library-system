@@ -166,6 +166,9 @@ void handleKeyPress() {
         case '/':
             if (E.page == NORMAL) searchPrompt();
             break;
+        case 's':
+            if (E.page == NORMAL) advancedSearchPrompt();
+            break;
         case 'i':
             if (E.page == BOOK_VIEW && E.userPriv != ADMIN) {
                 if (E.sIdx == NULL) {
@@ -447,7 +450,7 @@ void drawCommand() {
     if (time(NULL) - E.commandTime < MSGTIMEOUT) {
         len = snprintf(buf, sizeof(buf), "%s\r\n", E.commandBuf);
     } else {
-        if (E.page == NORMAL) len = snprintf(buf, sizeof(buf), "Press [/] to start a search. Press [m] to show issued books.\r\n");
+        if (E.page == NORMAL) len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.\r\n");
         if (E.page == SEARCH) len = snprintf(buf, sizeof(buf), "\r\n");
         if (E.page == DUES) len = snprintf(buf, sizeof(buf), "\r\n");
         if (E.page == BOOK_VIEW) {
@@ -684,6 +687,54 @@ void searchPrompt() {
         E.sIdx[i] = idtoIdx(E.sIdx[i]);
     }
     setCommandMsg("You searched for: %s, %d matches found.", searchStr, E.numResults);
+    if (E.numResults > 0) {
+        E.page = SEARCH; 
+        E.rowoff = 0;
+        E.cy = 0;
+    }
+}
+void advancedSearchPrompt() {
+    // This is a dummy search to test the command prompt feature.
+    char* title, *author, *publisher;
+    title = NULL;
+    author = NULL;
+    publisher = NULL;
+    title = commandPrompt("Title Search Term (press [ESC] to ignore this field): %s");
+    author = commandPrompt("Author Search Term (press [ESC] to ignore this field): %s");
+    publisher = commandPrompt("Publisher Search Term (press [ESC] to ignore this field): %s");
+    if (title == NULL && author == NULL && publisher == NULL) {
+        setCommandMsg("Search Aborted");
+        return;
+    }
+    if (title == NULL) {
+        title = strdup("\0");
+    }
+    if (author == NULL) {
+        author = strdup("\0");
+    }
+    if (publisher == NULL) {
+        publisher = strdup("\0");
+    }
+    int len = strlen(title);
+    if (len > 0) {
+        while (title[len - 1] == ' ' || title[len - 1] == '\t') title[--len] = '\0';
+    }
+    len = strlen(author);
+    if (len > 0) {
+        while (author[len - 1] == ' ' || author[len - 1] == '\t') author[--len] = '\0';
+    }
+    len = strlen(publisher);
+    if (len > 0) {
+        while (publisher[len - 1] == ' ' || publisher[len - 1] == '\t') publisher[--len] = '\0';
+    }
+    if (E.numResults > 0) free(E.sIdx);
+    E.sIdx = NULL;
+    E.numResults = 0;
+    advancedSearch(&E.sIdx, &E.numResults, &E.books, E.nbooks, title, author, publisher);
+    for (int i = 0; i < E.numResults; ++i) {
+        E.sIdx[i] = idtoIdx(E.sIdx[i]);
+    }
+    setCommandMsg("%d matches found.", E.numResults);
     if (E.numResults > 0) {
         E.page = SEARCH; 
         E.rowoff = 0;

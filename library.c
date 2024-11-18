@@ -75,6 +75,23 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
     /* *numResults = c; */
 }
 
+void advancedSearch(int** idx, int *numResults, Book** books, int nbooks, char* title, char* author, char* publisher) {
+    *idx = NULL;
+    int* results = advanced_search(title, author, publisher, "dict_soundex.csv");
+    int i = 0;
+    while(results[i] != -1){
+        if (*idx == NULL){
+            *idx = calloc(i+1, sizeof(int));
+        }
+        else{
+            *idx = reallocarray(*idx, i+1, sizeof(int));
+        }
+        (*idx)[i] = results[i];
+        ++i;
+    }
+    *numResults = i;
+}
+
 int issueBook(char* uname, int bookID, int nweeks) {
     time_t t;
     t = time(NULL);
