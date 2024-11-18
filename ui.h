@@ -56,3 +56,6 @@ void quitApp();
 void advancedSearchPrompt();
 void freeBooks();
 void freeDues();
+void loadUsers();
+void drawUsers();
+void changeUserPriv(int, int);

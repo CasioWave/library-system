@@ -27,7 +27,8 @@ enum PAGES {
     BOOK_VIEW,
     SEARCH,
     DUES,
-    DUE_VIEW
+    DUE_VIEW,
+    USERS
 };
 typedef struct {
     char* uname;
@@ -35,6 +36,11 @@ typedef struct {
     time_t issueDate;
     time_t dueDate;
 } Due;
+
+typedef struct {
+    char* uname;
+    int priv;
+} Userd;
 
 struct state {
     int cx, cy, screenrows, screencols, rowoff, numResults;
@@ -49,6 +55,8 @@ struct state {
     int* sIdx;
     Due* dues;
     int nDues;
+    Userd* users;
+    int nUsers;
 };
 struct state E;
 
@@ -213,6 +221,9 @@ void handleKeyPress() {
                     deletePrompt(E.sIdx[E.cy]);
                 }
             }
+            if (E.page == USERS && E.userPriv == ADMIN) {
+                changeUserPriv(E.cy, -1);
+            }
             break;
         case 'a':
             if (E.page == NORMAL && E.userPriv == ADMIN) addPrompt();
@@ -226,6 +237,16 @@ void handleKeyPress() {
             break;
         case 'r':
             if (E.page == DUE_VIEW && E.userPriv != ADMIN) returnPrompt(E.cy);
+            break;
+        case 'u':
+            if (E.userPriv == ADMIN && E.page == NORMAL) {
+                E.page = USERS;
+                E.rowoff = 0;
+                E.cy = 0;
+            }
+            break;
+        case 'p':
+            if (E.page == USERS) changeUserPriv(E.cy, 1);
             break;
         default:
             break;
@@ -248,10 +269,10 @@ int idtoIdx(int id) {
 void moveCursor(int c) {
     switch (c) {
         case ARROW_UP:
-            if (E.cy > 0 && (E.page == NORMAL || E.page == DUES || E.page == SEARCH) ) E.cy--;
+            if (E.cy > 0 && (E.page == NORMAL || E.page == DUES || E.page == SEARCH || E.page == USERS)) E.cy--;
             break;
         case ARROW_DOWN:
-            if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1) || (E.page == DUES && E.cy < E.nDues - 1)) E.cy++;
+            if ((E.page == NORMAL && E.cy < E.nbooks - 1) || (E.page == SEARCH && E.cy < E.numResults - 1) || (E.page == DUES && E.cy < E.nDues - 1) || (E.page == USERS && E.nUsers)) E.cy++;
             break;
         case ARROW_LEFT:
             if (E.cx > 0) E.cx--;
@@ -286,9 +307,90 @@ void loadDues() {
     }
     if (E.nDues > 0) {
         for (int i = 0; i < data.nrows; ++i) free(data.data[i]);
+        free(data.data);
     }
-    free(data.data);
     fclose(fp);
+}
+
+void loadUsers() {
+    E.nUsers = 0;
+    E.users = NULL;
+    FILE* fp = fopen("users.csv", "r");
+    if (fp == NULL) die("loadUsers");
+    CSV userData = readCSV(fp);
+    fclose(fp);
+    for (int i = 0; i < userData.nrows; ++i) {
+        Userd user;
+        user.uname = strdup(userData.data[i][0]);
+        user.priv = atoi(userData.data[i][2]);
+        E.users = realloc(E.users, (E.nUsers + 1) * sizeof(Userd));
+        E.users[E.nUsers++] = user;
+    }
+    if (userData.nrows > 0) {
+        for (int i = 0; i < userData.nrows; ++i) {
+            free(userData.data[i]);
+        }
+        free(userData.data);
+    }
+}
+void drawUsers() {
+    for (int y = 0; y < E.screenrows; ++y) {
+        int filerow = y + E.rowoff;
+        if(filerow < E.nUsers) {
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[7m", 4);
+            char rec[320], priv[55];
+            int level = E.users[filerow].priv;
+            int len = 0;
+            if (level == ADMIN) len = snprintf(priv, sizeof(priv), "Admin");
+            if (level == STUDENT) len = snprintf(priv, sizeof(priv), "Student");
+            if (level == FACULTY) len = snprintf(priv, sizeof(priv), "Faculty");
+            len = snprintf(rec, sizeof(rec), "%-55.55s|%s", E.users[filerow].uname, priv);
+            write(STDOUT_FILENO, rec, len);
+            for (int i = 0; i < E.screencols - len; ++i) write(STDOUT_FILENO, " ", 1);
+            if (E.cy == filerow) write(STDOUT_FILENO, "\x1b[m", 3);
+        }
+        write(STDOUT_FILENO, "\x1b[K", 3);
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+}
+
+void changeUserPriv(int i, int type) {
+    if (strcmp(E.username, E.users[i].uname) == 0) {
+        setCommandMsg("You can't edit your own record");
+        return;
+    }
+    int new = (type == 1) ? E.users[i].priv / 2 : E.users[i].priv * 2;
+    if (new < ADMIN || new > STUDENT) {
+        setCommandMsg("Invalid operation");
+        return;
+    }
+    if (new == ADMIN) {
+        for (int j = 0; j < E.nDues; ++j) {
+            if (strcmp(E.dues[j].uname, E.users[i].uname) == 0) {
+                setCommandMsg("Can't make '%s' an admin. They have books due.", E.users[i].uname);
+                return;
+            }
+        }
+    }
+    E.users[i].priv = new;
+    FILE* fp = fopen("users.csv", "r");
+    CSV userData = readCSV(fp);
+    fclose(fp);
+    fp = NULL;
+    fp = fopen("users.csv", "w");
+    fprintf(fp, "username,password,priviledge");
+    fclose(fp);
+    fp = NULL;
+    fp = fopen("users.csv", "a");
+    for (int j = 0; j < userData.nrows; ++j) {
+        fprintf(fp, "\n%s,%s,%d", userData.data[j][0], userData.data[j][1], E.users[j].priv);
+    }
+    for (int j = 0; j < userData.nrows; ++j) {
+        free(userData.data[j]);
+    }
+    free(userData.data);
+    fclose(fp);
+    setCommandMsg("Successfully changed account type for user: '%s'", E.users[i].uname);
 }
 
 void returnPrompt(int i) {
@@ -353,6 +455,8 @@ void topBar() {
         len = snprintf(top, sizeof(top), "Due Details");
     } else if (E.page == DUES){
         len = snprintf(top, sizeof(top), "%-55.55s|%-20.20s|%-55.55s|%-55.55s", "Username", "Book ID", "Issue Date", "Due Date");
+    } else if (E.page == USERS) {
+        len = snprintf(top, sizeof(top), "%-55.55s|%s", "Username", "User Priviledge");
     } else {
         len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
     }
@@ -803,6 +907,7 @@ void refreshScreen() {
     if (E.page == SEARCH) drawSearchResults();
     if (E.page == DUES) drawDues();
     if (E.page == DUE_VIEW) drawDueDeets();
+    if (E.page == USERS) drawUsers();
     statusBar();
     drawCommand();
     drawHelp();
@@ -823,6 +928,7 @@ void init() {
     }
     loadBooks();
     loadDues();
+    if (E.userPriv == ADMIN) loadUsers(); 
     enableRawMode();
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
     E.screenrows -= 5;
