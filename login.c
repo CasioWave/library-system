@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "login.h"
 #include "utils.h"
@@ -43,6 +44,7 @@ int login(int *priv, char ** uname) {
     password[strlen(password) - 1] = '\0';
 
 
+    int ret = LOGIN_FAILURE;
     User* users;
     users = fetchUsers("users.csv");
     int usrMatch = 0;
@@ -52,7 +54,8 @@ int login(int *priv, char ** uname) {
            if (strcmp(users[i].password, password) == 0) {
                *uname = strdup(username);
                *priv = users[i].priv;
-               return LOGIN_SUCCESS;
+               ret =  LOGIN_SUCCESS;
+               break;
            }
        }
     }
@@ -62,7 +65,11 @@ int login(int *priv, char ** uname) {
         fgets(choice, LOGIN_MAXLIM, stdin);
         if (choice[0] == 'y' || choice[1] == 'Y') {
             registerUser(username, password);
-            printf("You have been signed up as a student. To change your priviledges, contact the admin. Run the app again to login.\n");
+            printf("You have been signed up as a student. To change your priviledges, contact the admin. You'll now be logged In automatically please wait.\n");
+            *uname = strdup(username);
+            *priv = STUDENT;
+            ret =  SIGNUP;
+            sleep(3);
         } 
     }
     for (int i = 0; i < NUSERS; ++i) {
@@ -70,7 +77,7 @@ int login(int *priv, char ** uname) {
         free(users[i].username);
     }
     free(users);
-    return LOGIN_FAILURE;
+    return ret;
 }
 
 void registerUser(char* username, char* password) {

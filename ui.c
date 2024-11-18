@@ -817,7 +817,7 @@ void init() {
     setCommandMsg("Press [/] to start a search. Press [m] to show issued books.");
     E.commandTime = time(NULL);
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
-        printf("Login Failed!!");
+        printf("Login Failed!!\n");
         exit(1);
         return;
     }

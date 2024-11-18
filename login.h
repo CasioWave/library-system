@@ -1,6 +1,7 @@
 #pragma once
 
 #define LOGIN_SUCCESS 0 
+#define SIGNUP 1
 #define LOGIN_FAILURE -1
 #define LOGIN_MAXLIM 255
 
