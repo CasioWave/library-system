@@ -473,11 +473,11 @@ The issued books are stored in `transanctions.csv` file. This file has the follo
 4. Due Date
 
 ## UI
-The User Interface for this library management system has been written in the `ui.c`. This C file implements the user interface (UI) for a library management system. It provides functionality for rendering different pages, managing user inputs, and interacting with backend modules.
+The User Interface for this library management system has been written in the `ui.c`. It provides functionality for rendering different pages, managing user inputs, and interacting with backend modules.
 
-## Overview
+### Overview
 
-### Key Features:
+#### Key Features:
 
 - Multi-page UI with views for book search, user management, dues, and chat functionalities.
 
@@ -487,9 +487,9 @@ The User Interface for this library management system has been written in the `u
 
 
 
-## Code Structure
+### Code Structure
 
-### Includes:
+#### Includes:
 
 The following libraries are used:
 
@@ -497,17 +497,54 @@ The following libraries are used:
 
 - **Custom Modules**: Headers such as `rsa.h`, `library.h`, and `chatbot.h` enable modular functionality.
 
-### Macros:
+#### Macros and Enums:
 
 Key macros defined in the file include:
-
-- `STUDLIM` and `FACLIM`: Limits for the number of students and faculty members.
 
 - `MSGTIMEOUT`: Timeout for displaying messages.
 
 - `MAXCHARLIM`: Maximum character limit for command buffers.
 
-### Data Structures:
+- `CTRL_Key()`: This is a macro that gives us the ASCII value of the character when a key is pressed along with the `Ctrl` Key.
+
+- `PAGES`: This enum stores the values for rendering different pages in the application, like the homepage, search results, book details, chat bot etc.
+
+- `cursorKeys`: This is an enum storing the keycodes for different characters, which are then returned by the `readKeyPress` function.
+
+The definitions for these macros is shown below.
+
+```C
+#define MSGTIMEOUT 3
+#define MAXCHARLIM 5000
+
+#define CTRL_Key(x) (x & 31)
+
+enum cursorKeys {
+    TAB_KEY = 9,
+    BACKSPACE = 127,
+    ARROW_LEFT = 1000,
+    ARROW_RIGHT,
+    ARROW_UP,
+    ARROW_DOWN,
+    PAGE_UP,
+    PAGE_DOWN,
+    HOME_KEY,
+    END_KEY,
+    DEL_KEY
+};
+
+enum PAGES {
+    NORMAL=0,
+    BOOK_VIEW,
+    SEARCH,
+    DUES,
+    DUE_VIEW,
+    USERS,
+    CHAT
+};
+```
+
+#### Data Structures:
 
 - **`Due`**: Tracks book issuance details, such as username, book ID, issue date, and due date.
 
@@ -515,36 +552,177 @@ Key macros defined in the file include:
 
 - **`Chat`**: Stores chatbot interactions (questions and answers).
 
-- **`state`**: Maintains the current state of the UI, including cursor position, active page, and user information.
+- **`state`**: Maintains the current state of the UI, including cursor position, active page, and user information etc.
+
+The definitions for these Structs are shown below:
+```C
+typedef struct {
+    char* uname;
+    int bookID;
+    time_t issueDate;
+    time_t dueDate;
+} Due;
+
+typedef struct {
+    char* uname;
+    int priv;
+} Userd;
+
+typedef struct {
+    char* question;
+    char* answer;
+} Chat;
+
+struct state {
+    int cx, cy, screenrows, screencols, rowoff, numResults;
+    struct termios orig_term;
+    Book* books;
+    int nbooks;
+    char* username;
+    int userPriv;
+    int page;
+    char commandBuf[MAXCHARLIM];
+    time_t commandTime;
+    int* sIdx;
+    Due* dues;
+    int nDues;
+    Userd* users;
+    int nUsers;
+    Chat chat;
+};
+```
+### Functions
+
+#### `enableRawMode`
+- This function turns off canonical mode in the terminal and turns it into raw mode.
+
+#### `die`
+- Kill the application if it throws an error and quit with an error message.
+
+#### `disableRawMode`
+- Reset the terminal.
+
+#### `readKeyPress`
+- Read key presses from the terminal stdin.
+
+#### `freeBooks`
+- Free the global books array.
+
+#### `freeDues`
+- Free the global dues array.
+
+#### `quitApp`
+- Function to run when the user sends the quit signal. Frees the global arrays and resets the terminal.
+
+#### `searchByID`
+- A function to search the book database by ID.
+
+#### `idtoIdx`
+- A binary search function that returns the index of the book when the ID of the book is passed into it.
+
+#### `moveCursor`
+- Move the cursor when the arrow keys are pressed.
+
+#### `loadBooks`
+- Loads the books when the app is started.
+
+#### `loadDues`
+- Loads the due books when the app is started.
+
+#### `loadUsers`
+- Load the users list for the admin.
+
+#### `drawUsers`
+- Draw the users table.
+
+#### `changeUserPriv`
+- Change the user type.
+
+#### `returnPrompt`
+- This function lets the user return a book.
+
+#### `statusBar`
+- Draws the bottom status bar.
+
+#### `topBar`
+- Draw the top bar.
+
+#### `drawBooksTable`
+- Draw the table of books on the homepage.
+
+#### `chatPrompt`
+- Prompt the user to ask questions to the chatbot.
+
+#### `drawChat`
+- Render the chatbot page.
+
+#### `drawDues`
+- Render the dues table.
+
+#### `drawDueDeets`
+- Render the details of a particular issued book record.
+
+#### `drawSearchResults`
+- Render the search results.
+
+#### `drawCommand`
+- Draw the command bar.
+
+#### `setCommandMsg`
+- Set the text in the command bar.
+
+#### `drawHelp`
+- Render the help bar.
+
+#### `drawQuit`
+- Draw the quit instruction.
+
+#### `commandPrompt`
+- Prompt the user for an input. Takes a FORMAT string as an input and returns a string (`char *`).
+
+#### `deletePrompt`
+- Prompt the user to delete a book and ask for confirmation.
+
+#### `addPrompt`
+- Prompt the user to add details about a new book.
+
+#### `editPrompt`
+- Edit book details.
+
+#### `issuePrompt`
+- Prompt the user to issue a book.
+
+#### `searchPrompt`
+- Prompt the user for a search.
+
+#### `advancedSearchPrompt`
+- Advanced search functionality.
+
+#### `scroll`
+- Scrolls the page by setting the global `E.rowoff` variable to set a row offset.
+
+#### `goToxy`
+- Sends the cursor to the x-th column and the y-th row.
+
+#### `resetScreen`
+- Resets the screen, clears it, and returns the cursor to `(0, 0)`.
+
+#### `refreshScreen`
+- Refreshes the screen and draws everything to the screen.
+
+#### `init`
+- Initializes the UI and logs the user in. Called at the beginning of the main function.
+
+#### `getWindowSize`
+- Gets dimensions of the terminal window in rows and columns and writes to the pointers passed as parameters.
+
+#### `getCursorPosition`
+- Gets the cursor position into the pointers passed as parameters.
 
 
-
-## Functions
-
-### Core Functionalities:
-
-1. **Rendering Pages**:
-
-   Functions responsible for displaying specific views, such as `NORMAL`, `BOOK_VIEW`, or `CHAT`.
-
-2. **Command Handling**:
-
-   Processes user inputs and updates the UI state accordingly.
-
-3. **Integration**:
-
-   Interfaces with backend modules for operations like user authentication, book search, and chatbot responses.
-
-### Interaction Flow:
-
-- The UI listens for user commands, processes inputs, and updates the terminal display.
-
-- Modular design ensures seamless communication with other components, such as the library system and encryption module.
-
-## Dependencies
+### Dependencies
 - Terminal support for ANSI escape codes (for UI rendering).
 
-- Backend modules (`rsa.h`, `library.h`, etc.) for full functionality.
 ## Contributions
 | Debayan Sarkar [(@TheSilyCoder)](https://github.com/TheSillyCoder)| Diptanuj Sarkar [(@CasioWave)](https://github.com/CasioWave)|
 | --------| --------|
@@ -552,4 +730,5 @@ Key macros defined in the file include:
 | Database CRUD operations | Search | 
 | Authentication | RSA |
 ## References
-1. k&r
+1. [The C Programming Language - By Brian W. Kernighan, Dennis M. Ritchie](https://ia903407.us.archive.org/35/items/the-ansi-c-programming-language-by-brian-w.-kernighan-dennis-m.-ritchie.org/The%20ANSI%20C%20Programming%20Language%20by%20Brian%20W.%20Kernighan%2C%20Dennis%20M.%20Ritchie.pdf)
+2. [Video Diplay Terminal Information](https://vt100.net/)
