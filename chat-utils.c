@@ -1,5 +1,5 @@
 #include "chatbot.h"
-
+//More context in the form of comments can be found in the version of this file in the chatbotTraining folder
 // Function to assign values to a Context struct
 void assignContext(Context* ctx, const char* answer, const float* vector) {
     strncpy(ctx->answer, answer, sizeof(ctx->answer) - 1);

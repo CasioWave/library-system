@@ -1,14 +1,14 @@
 #include "chatbot.h"
 
-char classes[NO_CLASSES][10] = {"ui","help","random","niceties","stats","function"};
+char classes[NO_CLASSES][10] = {"ui","help","random","niceties","stats","function"}; //redundant, was originally planned to be used for context contionuation
 
 int main(){
-    AnswerNode* crop = (AnswerNode*) malloc(100*sizeof(AnswerNode));
-    int no_crop = 0;
+    AnswerNode* crop = (AnswerNode*) malloc(100*sizeof(AnswerNode)); //trainer can handle a max of 100 answers per round
+    int no_crop = 0; //No of answers that were input
     printf("Welcome to CHATBOT TRAINER VER 0.1! \n\n");
     while(1){
         int c1 = 0;
-        //printf("1 = Print the categories of conversation\n");
+        //printf("1 = Print the categories of conversation\n"); //removed as it made training cumbersome
         printf("2 = Start conversation training\n");
         printf("3 = Quit \n");
         printf("Enter choice -> ");
@@ -26,7 +26,7 @@ int main(){
             continue;
         }
         else if (c1 == 2){
-            printf("If you type 'q' at 1st input prompt, prog quits/segfaults lol\n");
+            printf("If you type 'q' at 1st input prompt, prog quits\n"); //While writing the main prompt of the extra prompts
             while (1){
                 char** pro = (char**) malloc(50*sizeof(char*));
                 for (int i = 0; i < 50; ++i){
@@ -47,7 +47,7 @@ int main(){
                     break;
                 }
                 printf("\nEnter the answer the bot should give -> ");
-                scan(ans,500);
+                scan(ans,500); //The answer can be at max be 500 characters
                 printf("\n Are there other ways to ask the same prompt? (Enter 'q' to exit)\n");
                 int count = 1;
                 while (1){
@@ -64,7 +64,7 @@ int main(){
                     printf("\n");
                 }
                 printf("\n");
-                /*
+                /* //Code that was made irrelevant by cutting out the context continuation feature
                 printf("Now, give a score (out of 10) to each category depending on how relevant this prompt is to it - \n");
                 for (int i = 0; i < NO_CLASSES; ++i){
                     int sc = 0;
@@ -81,7 +81,7 @@ int main(){
                 }
                 */
                 printf("This answer is done!\n");
-                //inPlaceNormalize(class_vec, NO_CLASSES);
+                //inPlaceNormalize(class_vec, NO_CLASSES); //since they are not being assigned, no need to normalise
                 crop[no_crop] = *createAnswer();
                 prepareAnswer(ans, class_vec, pro, &crop[no_crop]);
                 free(pro);

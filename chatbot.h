@@ -1,3 +1,4 @@
+//Described in comments in the version of this file that is in chatbotTraining folder
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

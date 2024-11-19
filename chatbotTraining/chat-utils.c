@@ -56,10 +56,10 @@ TrieNode* createNode() {
     }
     node->is_end_of_word = 0;
     for (int i = 0; i < ALPHABET_SIZE; i++) {
-        node->children[i] = NULL;
+        node->children[i] = NULL; //All root alphabet nodes point to null initially
     }
     for (int i = 0; i < FLOAT_LIST_SIZE; i++) {
-        node->meaning[i] = 0.0;
+        node->meaning[i] = 0.0; //Here, the meanings are the weight vectors, where every element of the vector is the probability that token word predicts the corresponding answer
     }
     return node;
 }
@@ -68,7 +68,7 @@ TrieNode* createNode() {
 void insert(TrieNode* root, const char* word, float meaning[FLOAT_LIST_SIZE]) {
     TrieNode* current = root;
     while (*word) {
-        int index = *word - 'a'; // Assumes only lowercase letters
+        int index = *word - 'a'; // Assumes only lowercase letters - we sanitize strings before passing it to this
         if (index < 0 || index >= ALPHABET_SIZE) {
             printf("Invalid character '%c' in word. Skipping...\n", *word);
             return;
@@ -79,7 +79,7 @@ void insert(TrieNode* root, const char* word, float meaning[FLOAT_LIST_SIZE]) {
         current = current->children[index];
         word++;
     }
-    current->is_end_of_word = 1;
+    current->is_end_of_word = 1; //terminates the word
     for (int i = 0; i < FLOAT_LIST_SIZE; i++) {
         current->meaning[i] = meaning[i];
     }
@@ -91,15 +91,15 @@ TrieNode* search(TrieNode* root, const char* word) {
     while (*word) {
         int index = *word - 'a';
         if (index < 0 || index >= ALPHABET_SIZE || !current->children[index]) {
-            return NULL;
+            return NULL; //Word not found in trie
         }
         current = current->children[index];
         word++;
     }
-    return current->is_end_of_word ? current : NULL;
+    return current->is_end_of_word ? current : NULL; //if the trie ends, sendd back the word
 }
 
-// Function to save the trie to a file
+// Function to save the trie to a file - is used in the savetrietofile function
 void saveTrie(FILE* file, TrieNode* node, char* buffer, int depth) {
     if (!node) return;
 
@@ -165,7 +165,7 @@ void freeTrie(TrieNode* root) {
     }
     free(root);
 }
-
+//function to conveniently read string inputs from stdin
 void scan(char* ret, int s){
     if (fgets(ret, s, stdin) != NULL) {
             // Remove the newline character if present
@@ -239,7 +239,7 @@ void displayNodes(AnswerNode* nodes, int count) {
         printf("\n");
     }
 }
-
+//Normalises the array of floats given to it, so that the sum of all the elements in the array = 1
 void inPlaceNormalize(float* li, int l){
     float sum = 0.0;
     for (int i = 0; i < l; ++i){
@@ -249,7 +249,7 @@ void inPlaceNormalize(float* li, int l){
         li[i] = li[i]/sum;
     }
 }
-
+///Mallocs and initialises an AnswerNode struct
 AnswerNode* createAnswer(){
     AnswerNode* node = (AnswerNode*) malloc(sizeof(AnswerNode));
     node->answer[0] = '\0';
@@ -261,7 +261,7 @@ AnswerNode* createAnswer(){
     }
     return node;
 }
-
+//Pushes information into an AnswerNode struct
 void prepareAnswer(char* ans, float* class_vec, char** prompts, AnswerNode* node){
     for (int i = 0; ans[i] != '\0'; ++i){
         node->answer[i] = ans[i];

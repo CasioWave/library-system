@@ -1,7 +1,7 @@
 #include "search-utils.h"
 #include <ctype.h>
 #include <stdlib.h>
-
+//The commenting for this code is done in the base file where a copy of this exits - this was put here only for ease of compilation of trainer/prrocessor
 char** string_arr_mallocer(int no_strings, int string_len){
     char** ret = (char**) malloc(no_strings*sizeof(char*));
     for (int i = 0; i < no_strings; ++i){

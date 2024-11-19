@@ -1,4 +1,5 @@
 #include "search-utils.h"
+//By default, all of these costs are set to one - meaning that all these types of typos are equally likely. That can be changed easily.
 #define SUBSCOST 1
 #define DELCOST 1
 #define INSCOST 1
