@@ -1,7 +1,5 @@
 #include "search-utils.h"
 #include <ctype.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 char** string_arr_mallocer(int no_strings, int string_len){

@@ -6,7 +6,7 @@
 #define LEVWEIGHT 10
 #define EXACT_BONUS 100
 #define SOUNDWEIGHT 0.5
-#define MAXLEV 0 //Important - this integer controls how fuzzy it gets
+#define MAXLEV 2 //Important - this integer controls how fuzzy it gets
 #define SOUND_LEN 5
 #define SYN_PENALTY 5
 #define MAXQUERY 20
