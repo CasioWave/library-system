@@ -59,7 +59,7 @@ char* generateAnswer(char* input){
         }
     }
     for (int i = 0; i < no_tokens; ++i){
-        TrieNode* res = search(root, tokens[i]);
+        TrieNode* res = searchTrie(root, tokens[i]);
         //printf("SEARCH DONE for %s!\n",tokens[i]);
         for (int j = 0; j < no_ans; ++j){
             if (res == NULL){

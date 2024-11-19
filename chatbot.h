@@ -31,7 +31,7 @@ void printContext(const Context* ctx);
 
 TrieNode* createNode();
 void insert(TrieNode* root, const char* word, float meaning[FLOAT_LIST_SIZE]);
-TrieNode* search(TrieNode* root, const char* word);
+TrieNode* searchTrie(TrieNode* root, const char* word);
 void saveTrie(FILE* file, TrieNode* node, char* buffer, int depth);
 void saveTrieToFile(const char* filename, TrieNode* root);
 void loadTrieFromFile(const char* filename, TrieNode* root);

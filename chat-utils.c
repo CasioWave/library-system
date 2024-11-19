@@ -86,7 +86,7 @@ void insert(TrieNode* root, const char* word, float meaning[FLOAT_LIST_SIZE]) {
 }
 
 // Function to search for a word in the trie
-TrieNode* search(TrieNode* root, const char* word) {
+TrieNode* searchTrie(TrieNode* root, const char* word) {
     TrieNode* current = root;
     while (*word) {
         int index = *word - 'a';
