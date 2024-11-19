@@ -1,14 +1,12 @@
-#include <stdio.h>
-
 #include "ui.h"
-#include "library.h"
-#include "login.h"
-
 
 int main() {
-    printf("main.c\n");
-    helloFromUi();
-    helloFromLibrary();
-    helloFromLogin();
+    // initialise the UI
+    init();
+    // mainloop
+    while(1) {
+        refreshScreen();
+        handleKeyPress();
+    }
     return 0;
 }
