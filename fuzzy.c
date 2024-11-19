@@ -5,7 +5,8 @@
 #include "soundex.h"
 #include "fuzzy.h"
 #include "synonyms.h"
-
+//Advanced search function that takes the show inputs and returns the list of Book IDs that match, ranked by scores
+//You must atleast pass a '\0' (NULL terminator) in each of these input string queries
 int* advanced_search(char* title, char* author, char* pub, char* dict_file){
     int* res_title = (int*) malloc(1000*sizeof(int));
     int* res_author = (int*) malloc(1000*sizeof(int));
@@ -24,7 +25,7 @@ int* advanced_search(char* title, char* author, char* pub, char* dict_file){
         res_author = fuzzy_search(author, 2, dict_file);
     }
     else{
-        res_title[0] = -1;
+        res_title[0] = -1; //Terminates if nothing is being looked for
     }
     
     //Search for the publisher
@@ -64,8 +65,9 @@ int* advanced_search(char* title, char* author, char* pub, char* dict_file){
                 for (int k = 0; k < size_pub; ++k){
                     int p = res_pub[k];
                     if (t == p){
+                        //A Book recorrd has been found that matches all the queries simultaneously
                         final_res[res_size] = t;
-                        scores[res_size] = 1000 - i - j - k;
+                        scores[res_size] = 1000 - i - j - k; //Score linearly decreases
                         ++res_size;
                         break;
                     }
@@ -169,6 +171,7 @@ int* advanced_search(char* title, char* author, char* pub, char* dict_file){
 }
 
 //Returns an array of indices (matches with index in books-clean.csv) sorted by score, list terminated by -1
+//the significance of cat is described in fuzzy.h
 int* fuzzy_search(char* query, int cat, char* dict_file){
     FILE* dict = fopen(dict_file,"r");
     int* res = (int*) malloc(MAXRES * sizeof(int));

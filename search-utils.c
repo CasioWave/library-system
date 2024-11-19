@@ -1,9 +1,8 @@
 #include "search-utils.h"
 #include <ctype.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
 
+//I was tired of mallocing for individual arrays of strings, so I wrote this to do it for me
 char** string_arr_mallocer(int no_strings, int string_len){
     char** ret = (char**) malloc(no_strings*sizeof(char*));
     for (int i = 0; i < no_strings; ++i){
@@ -11,7 +10,7 @@ char** string_arr_mallocer(int no_strings, int string_len){
     }
     return ret;
 }
-
+//Unused function - originally planned to be used to speed up dictionary lookup (should have implemented tries instead)
 int hash_string(char *str){
     int ret = 0;
     for (int i = 0; *(str+i) != '\0'; ++i){
@@ -19,7 +18,7 @@ int hash_string(char *str){
     }
     return ret;
 }
-
+//simply counts the number of times a char occurs in a string
 int count_char(char *str, char ch){
     int i, count;
     count = 0;
@@ -30,7 +29,7 @@ int count_char(char *str, char ch){
     }
     return count;
 }
-
+//Strips 
 int strip(char *str, char *ret){
     int left;
     for (left = 0; *(str+left) == ' '; ++left){

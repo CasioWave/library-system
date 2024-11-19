@@ -1,5 +1,5 @@
 #include "preprocess.h"
-
+//Simply stitches together a list of integers into a '-' separated string and returns it
 char* stitch(int* arr, int count) {
     char* result = malloc(count * 12);  // Assuming each number is at most 10 digits + 1 for '-' + 1 for '\0'
     result[0] = '\0';
@@ -11,7 +11,11 @@ char* stitch(int* arr, int count) {
     result[strlen(result) - 1] = '\0';  // Remove the last '-'
     return result;
 }
-
+//this function is called every time the main database is altered by admin activity
+//It reads the csv file, find all the unique tokens of types title, author, or publisher
+//Gathers all the indices/book IDs where these tokens show up
+//Soundex hashes the token for soundex matching
+//And writes all this information intto a dictionary file "dict_soundex.h"
 int preprocess() {
     FILE* file = fopen("books-clean.csv", "r");
     if (file == NULL) {
@@ -19,6 +23,7 @@ int preprocess() {
         return -1;
     }
     char** forbid = (char**) malloc(7*sizeof(char*));
+    //Words that we can safely ignore as tokens
     forbid[0] = "a";
     forbid[1] = "and";
     forbid[2] = "the";

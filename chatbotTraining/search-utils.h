@@ -1,3 +1,4 @@
+//Described in detail in the version of this file that is present in the base folder
 int len(char str[]);
 int lower(char *str, char *ret);
 int sanitize(char *str, char *ret);
