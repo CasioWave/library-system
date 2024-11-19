@@ -255,15 +255,16 @@ int str_split(char *str, char delim, char** l){
     int i, j, k;
     j = k = 0;
     for (i = 0; i < len(str); ++i){
-        if (*(str+i) == delim){
+        if (str[i] == delim){
             l[k][j] = '\0';
             ++k;
             j = 0;
         }
-        else{
+        else{     
             l[k][j] = str[i];
             ++j;
         }
     }
+    l[k][j] = '\0';
     return k+1;
 }
