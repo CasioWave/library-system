@@ -736,4 +736,4 @@ struct state {
 | Authentication | RSA |
 ## References
 1. [The C Programming Language - By Brian W. Kernighan, Dennis M. Ritchie](https://ia903407.us.archive.org/35/items/the-ansi-c-programming-language-by-brian-w.-kernighan-dennis-m.-ritchie.org/The%20ANSI%20C%20Programming%20Language%20by%20Brian%20W.%20Kernighan%2C%20Dennis%20M.%20Ritchie.pdf)
-2. [Video Diplay Terminal Information](https://vt100.net/)
+2. [Video Display Terminal Information](https://vt100.net/)
