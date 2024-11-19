@@ -43,6 +43,11 @@ typedef struct {
     int priv;
 } Userd;
 
+typedef struct {
+    char* question;
+    char* answer;
+} Chat;
+
 struct state {
     int cx, cy, screenrows, screencols, rowoff, numResults;
     struct termios orig_term;
@@ -58,6 +63,8 @@ struct state {
     int nDues;
     Userd* users;
     int nUsers;
+    Chat chat;
+    int nChats;
 };
 struct state E;
 
@@ -186,8 +193,15 @@ void handleKeyPress() {
                 E.page = DUES;
             } else {
                 E.page = NORMAL;
-                free(E.sIdx);
+                if (E.numResults > 0) free(E.sIdx);
                 E.sIdx = NULL;
+                E.numResults = 0;
+                if (E.chat.question != NULL) {
+                    free(E.chat.question);
+                    free(E.chat.answer);
+                    E.chat.question = NULL;
+                    E.chat.answer = NULL;
+                }
             }
             break;
         case '/':
@@ -250,9 +264,9 @@ void handleKeyPress() {
             if (E.page == USERS) changeUserPriv(E.cy, 1);
             break;
         case ':':
-            if (E.page == NORMAL) {
-                searchByID();
-            }
+            if (E.page == NORMAL) searchByID();
+            if (E.page == CHAT) chatPrompt();
+            
             break;
         case 'c':
             if (E.page == NORMAL) {
@@ -486,6 +500,8 @@ void topBar() {
         len = snprintf(top, sizeof(top), "%-55.55s|%-20.20s|%-55.55s|%-55.55s", "Username", "Book ID", "Issue Date", "Due Date");
     } else if (E.page == USERS) {
         len = snprintf(top, sizeof(top), "%-55.55s|%s", "Username", "User Priviledge");
+    } else if (E.page == CHAT) {
+        len = snprintf(top, sizeof(top), "Chatbot");
     } else {
         len = snprintf(top, sizeof(top), "%-7s|%-55s|%-55s|%-55s|%s", "ID", "Title", "Authors", "Publishers", "Qty.");
     }
@@ -508,6 +524,43 @@ void drawBooksTable() {
         write(STDOUT_FILENO, "\x1b[K", 3);
         write(STDOUT_FILENO, "\r\n", 2);
     }
+}
+void chatPrompt() {
+    char* question = NULL;
+    question = commandPrompt("Enter your question here: %s");
+    if (question == NULL) {
+        setCommandMsg("Aborted");
+        return;
+    }
+    if (E.chat.question != NULL) {
+        free(E.chat.question);
+        free(E.chat.answer);
+    }
+    E.chat.question = strdup(question);
+    E.chat.answer = strdup("go fuck yourself");
+}
+void drawChat() {
+    E.rowoff = 0;
+    E.cy = 0;
+    int extra = 2;
+    if (E.chat.question == NULL) {
+        char rec[MAXCHARLIM];
+        int len = snprintf(rec, sizeof(rec), "Hello, this is library bot. How may I help you ?\r\n");
+        write(STDOUT_FILENO, rec, len);
+        extra = 1;
+    }
+    if (E.chat.question != NULL) {
+        char rec[MAXCHARLIM];
+        int len = snprintf(rec, sizeof(rec), "\x1b[33m[You]\x1b[0m %s\r\n", E.chat.question);
+        write(STDOUT_FILENO, rec, len);
+        len = snprintf(rec, sizeof(rec), "\x1b[32m[library bot]\x1b[0m %s\r\n", E.chat.answer);
+        write(STDOUT_FILENO, rec, len);
+        write(STDOUT_FILENO, "\x1b[K", 3);
+    }
+    for (int i = 0; i < E.screenrows - extra ; ++i) {
+        write(STDOUT_FILENO, "\r\n", 2);
+    }
+
 }
 void drawDues() {
     if (E.nDues == 0) {
@@ -607,9 +660,9 @@ void drawCommand() {
     } else {
         if (E.page == NORMAL) {
             if (E.userPriv == ADMIN) {
-                len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books. Press [u] to show list of users.\r\n");
+                len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search, [s] to start an advanced field-wise search, and [:] to search by ID. Press [m] to show issued books. Press [u] to show list of users.\r\n");
             } else {
-                len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.\r\n");
+                len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search, [s] to start an advanced field-wise search, and [:] to search by ID. Press [m] to show issued books.\r\n");
             }
         }
         if (E.page == SEARCH) len = snprintf(buf, sizeof(buf), "\r\n");
@@ -623,6 +676,7 @@ void drawCommand() {
             if (E.userPriv == ADMIN) len = snprintf(buf, sizeof(buf), "\r\n");
             if (E.userPriv != ADMIN) len = snprintf(buf, sizeof(buf), "Press [r] to issue this book\r\n");
         }
+        if (E.page == CHAT) len = snprintf(buf, sizeof(buf), "Press [:] to ask questions.\r\n");
     }
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
@@ -645,6 +699,7 @@ void drawHelp() {
     if (E.page == DUE_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
     if (E.page == DUES) len = snprintf(buf, sizeof(buf), "Press [ENTER] to view Due Details and aditional options. Press [ESC] to go back.\r\n");
     if (E.page == USERS) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back.\r\n");
+    if (E.page == CHAT) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back.\r\n");
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
 }
@@ -951,6 +1006,7 @@ void refreshScreen() {
     if (E.page == DUES) drawDues();
     if (E.page == DUE_VIEW) drawDueDeets();
     if (E.page == USERS) drawUsers();
+    if (E.page == CHAT) drawChat();
     statusBar();
     drawCommand();
     drawHelp();
@@ -961,8 +1017,10 @@ void refreshScreen() {
 }
 
 void init() {
-    E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
+    E.nChats = E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
     E.sIdx = NULL;
+    E.chat.answer = NULL;
+    E.chat.question = NULL;
     setCommandMsg("Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.");
     E.commandTime = time(NULL);
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
