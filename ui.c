@@ -70,6 +70,7 @@ struct state {
 };
 struct state E;
 
+// This function turns off canonical mode in the terminal and turns it into raw mode
 void enableRawMode() {
     if (tcgetattr(STDIN_FILENO, &E.orig_term) == -1) die("tcgetattr");
     atexit(disableRawMode);
@@ -85,15 +86,20 @@ void enableRawMode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
 
+// kill the application if it throws an error and quit with an error message
 void die(char *s) {
     resetScreen();
     perror(s);
     exit(1);
 }
+
+// reset the terminal
 void disableRawMode() {
     write(STDOUT_FILENO, "\x1b[?25h", 6); 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_term) == -1) die("tcsetattr");
 }
+
+// read key presses from the terminal stdin
 int readKeyPress() {
     int nread;
     char c;
@@ -140,6 +146,8 @@ int readKeyPress() {
     }
     return c;
 }
+
+// free the global books array
 void freeBooks() {
     if (E.nbooks > 0) {
         for (int i = 0; i < E.nbooks; ++i) {
@@ -151,6 +159,8 @@ void freeBooks() {
     }
     free(E.books);
 }
+
+// free the global dues array
 void freeDues() {
     if (E.nDues > 0) {
         for (int i = 0; i < E.nDues; ++i) {
@@ -159,6 +169,8 @@ void freeDues() {
     }
     free(E.dues);
 }
+
+// function to run when user sends the quit signal. Frees the global arrays and resets the terminal
 void quitApp() {
     resetScreen();
     disableRawMode();
@@ -169,6 +181,7 @@ void quitApp() {
     exit(0);
 }
 
+// handles the keypresses after reading the ketpresses from readKeyPress()
 void handleKeyPress() {
     int c = readKeyPress();
     switch (c) {
@@ -280,6 +293,7 @@ void handleKeyPress() {
     }
 }
 
+// A function to search the book database by ID.
 void searchByID() {
     char* buf;
     buf = commandPrompt("Enter the ID: %s");
@@ -298,6 +312,7 @@ void searchByID() {
     return;
 }
 
+// A binary search function that returns the index of the book when the id of the book is passed into it
 int idtoIdx(int id) {
     int a = 0;
     int b = E.nbooks - 1;
@@ -311,6 +326,8 @@ int idtoIdx(int id) {
     }
     return -1;
 }
+
+// Move the cursor when the arrow keys are pressed
 void moveCursor(int c) {
     switch (c) {
         case ARROW_UP:
@@ -328,9 +345,13 @@ void moveCursor(int c) {
     }
     return;
 }
+
+// loads the books when the app is started
 void loadBooks() {
     E.books = fetchBooks("books-clean.csv", &E.nbooks);
 }
+
+// loads the due books when the app is started
 void loadDues() {
     if (E.nDues > 0) freeDues();
     E.dues = NULL;
@@ -357,6 +378,7 @@ void loadDues() {
     fclose(fp);
 }
 
+// load the users list for the admin
 void loadUsers() {
     E.nUsers = 0;
     E.users = NULL;
@@ -378,6 +400,8 @@ void loadUsers() {
         free(userData.data);
     }
 }
+
+// Draw the users table
 void drawUsers() {
     for (int y = 0; y < E.screenrows; ++y) {
         int filerow = y + E.rowoff;
@@ -399,6 +423,7 @@ void drawUsers() {
     }
 }
 
+// Change the user type
 void changeUserPriv(int i, int type) {
     if (strcmp(E.username, E.users[i].uname) == 0) {
         setCommandMsg("You can't edit your own record");
@@ -438,6 +463,7 @@ void changeUserPriv(int i, int type) {
     setCommandMsg("Successfully changed account type for user: '%s'", E.users[i].uname);
 }
 
+// This function lets the user return a book
 void returnPrompt(int i) {
     Due due = E.dues[i];
     FILE* fp = NULL;
@@ -474,6 +500,7 @@ void returnPrompt(int i) {
     setCommandMsg("Returned the book with ID %d to the library.", due.bookID);
 }
 
+// Draws the bottom status bar
 void statusBar() {
     write(STDOUT_FILENO, "\x1b[1;7m", 6);
     char status[80];
@@ -490,6 +517,7 @@ void statusBar() {
     write(STDOUT_FILENO, "\r\n", 2);
 }
 
+// Draw the top bar
 void topBar() {
     write(STDOUT_FILENO, "\x1b[1;7m", 6);
     char top[320];
@@ -512,6 +540,8 @@ void topBar() {
     write(STDOUT_FILENO, "\x1b[m", 3);
     write(STDOUT_FILENO, "\r\n", 2);
 }
+
+// Draw the table of books on the homepage
 void drawBooksTable() {
     for (int y = 0 ; y < E.screenrows; ++y) {
         int filerow = y + E.rowoff;
@@ -527,6 +557,8 @@ void drawBooksTable() {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
+
+// Prompt the user to ask questions to the chatbot
 void chatPrompt() {
     char* question = NULL;
     question = commandPrompt("Enter your question here: %s");
@@ -541,6 +573,8 @@ void chatPrompt() {
     E.chat.question = strdup(question);
     E.chat.answer = strdup(generateAnswer(question));
 }
+
+// render the chatbot page
 void drawChat() {
     E.rowoff = 0;
     E.cy = 0;
@@ -566,6 +600,8 @@ void drawChat() {
     }
 
 }
+
+// render the dues table
 void drawDues() {
     if (E.nDues == 0) {
         char rec[320];
@@ -591,6 +627,8 @@ void drawDues() {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
+
+// render the details of a particular issued book record
 void drawDueDeets() {
     Due due = E.dues[E.cy];
     Book book = E.books[idtoIdx(due.bookID)];
@@ -617,6 +655,8 @@ void drawDueDeets() {
         write(STDOUT_FILENO, "\r\n", 2);
     }
 }
+
+// render the search results
 void drawSearchResults() {
     for (int i = 0; i < E.screenrows; ++i) {
         int filerow = i + E.rowoff;
@@ -655,6 +695,7 @@ void drawBook() {
     }
 }
 
+// draw the command bar
 void drawCommand() {
     char buf[MAXCHARLIM];
     int len = 0;
@@ -686,6 +727,7 @@ void drawCommand() {
     write(STDOUT_FILENO, "\x1b[0m", 4);
 }
 
+// set the text in the command bar
 void setCommandMsg(const char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -693,6 +735,8 @@ void setCommandMsg(const char* fmt, ...) {
     va_end(ap);
     E.commandTime = time(NULL);
 }
+
+// render the help bar
 void drawHelp() {
     char buf[MAXCHARLIM];
     int len = 0;
@@ -708,12 +752,14 @@ void drawHelp() {
     write(STDOUT_FILENO, "\x1b[0m", 4);
 }
 
+// draw the quit instruction
 void drawQuit() {
     char buf[MAXCHARLIM];
     int len = snprintf(buf, sizeof(buf), "Press [Ctrl + Q] to exit the application.\r\n");
     write(STDOUT_FILENO, buf, len);
 }
 
+// prompt the user for an input. Takes a FORMAT string as an input and returns a string (char *)
 char *commandPrompt(char *prompt) {
     size_t bufsize = MAXCHARLIM;
     char *buf = (char*) malloc(bufsize);
@@ -748,6 +794,7 @@ char *commandPrompt(char *prompt) {
     }
 }
 
+// prompts the user to delete a book. asks for confirmation from the user
 void deletePrompt(int i) {
     char* conf = NULL;
     conf = commandPrompt("Are you sure you want to delete this book [y/n]: %s");
@@ -772,6 +819,8 @@ void deletePrompt(int i) {
     return;
 
 }
+
+// prompts the user to add details about the new book to be added
 void addPrompt() {
     char* title = NULL;
     title = commandPrompt("Enter title: %s");
@@ -971,6 +1020,7 @@ void advancedSearchPrompt() {
     }
 }
 
+// Scrolls the page by setting the global E.rowoff variable to set a row offset.
 void scroll() {
     if (E.cy < E.rowoff) {
         E.rowoff = E.cy;
@@ -980,6 +1030,8 @@ void scroll() {
         E.rowoff = E.cy - E.screenrows + 1;
     }
 }
+
+// sends the cursor to the xth column and the yth row
 void goToxy(int x, int y) {
     char buf[32];
     snprintf(buf, sizeof(buf), "\x1b[%d;%dH", y, x);
@@ -987,11 +1039,13 @@ void goToxy(int x, int y) {
     return;
 }
 
+// resets the screen -> clears the screen and returns the cursor to (0, 0)
 void resetScreen() {
     write(STDOUT_FILENO, "\x1b[2J", 4);
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
+// refreshes the screen and draws everything  to the screen
 void refreshScreen() {
     scroll();
     write(STDOUT_FILENO, "\x1b[?25l", 6);
@@ -1013,6 +1067,7 @@ void refreshScreen() {
     return;
 }
 
+// initialises the UI and logs the user in. This is called at the beggining of the main function
 void init() {
     E.nChats = E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
     E.sIdx = NULL;
@@ -1034,6 +1089,7 @@ void init() {
     resetScreen();
 }
 
+// This fuction gets dimensions of the terminal window in rows and columns, and writes to the pointers passed to it as parameters
 int getWindowSize(int *rows, int *cols) {
     struct winsize ws;
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
@@ -1046,6 +1102,7 @@ int getWindowSize(int *rows, int *cols) {
     }
 }
 
+// This lets us get the cursor position into the pointers passed in as parameters
 int getCursorPosition(int *rows, int *cols) {
     char buf[32];
     unsigned int i = 0;
