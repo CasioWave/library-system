@@ -296,7 +296,78 @@ The issued books are stored in `transanctions.csv` file. This file has the follo
 4. Due Date
 
 ## UI
-OMAGO
+The User Interface for this library management system has been written in the `ui.c`. This C file implements the user interface (UI) for a library management system. It provides functionality for rendering different pages, managing user inputs, and interacting with backend modules.
+
+## Overview
+
+### Key Features:
+
+- Multi-page UI with views for book search, user management, dues, and chat functionalities.
+
+- Command handling for efficient navigation and operations.
+
+- Integration with other system components, such as RSA encryption and chatbots.
+
+
+
+## Code Structure
+
+### Includes:
+
+The following libraries are used:
+
+- **Standard Libraries**: `stdio.h`, `stdlib.h`, `termios.h`, etc., for basic I/O and terminal interaction.
+
+- **Custom Modules**: Headers such as `rsa.h`, `library.h`, and `chatbot.h` enable modular functionality.
+
+### Macros:
+
+Key macros defined in the file include:
+
+- `STUDLIM` and `FACLIM`: Limits for the number of students and faculty members.
+
+- `MSGTIMEOUT`: Timeout for displaying messages.
+
+- `MAXCHARLIM`: Maximum character limit for command buffers.
+
+### Data Structures:
+
+- **`Due`**: Tracks book issuance details, such as username, book ID, issue date, and due date.
+
+- **`Userd`**: Represents user information, including username and privilege level.
+
+- **`Chat`**: Stores chatbot interactions (questions and answers).
+
+- **`state`**: Maintains the current state of the UI, including cursor position, active page, and user information.
+
+
+
+## Functions
+
+### Core Functionalities:
+
+1. **Rendering Pages**:
+
+   Functions responsible for displaying specific views, such as `NORMAL`, `BOOK_VIEW`, or `CHAT`.
+
+2. **Command Handling**:
+
+   Processes user inputs and updates the UI state accordingly.
+
+3. **Integration**:
+
+   Interfaces with backend modules for operations like user authentication, book search, and chatbot responses.
+
+### Interaction Flow:
+
+- The UI listens for user commands, processes inputs, and updates the terminal display.
+
+- Modular design ensures seamless communication with other components, such as the library system and encryption module.
+
+## Dependencies
+- Terminal support for ANSI escape codes (for UI rendering).
+
+- Backend modules (`rsa.h`, `library.h`, etc.) for full functionality.
 ## Contributions
 | Debayan Sarkar [(@TheSilyCoder)](https://github.com/TheSillyCoder)| Diptanuj Sarkar [(@CasioWave)](https://github.com/CasioWave)|
 | --------| --------|
