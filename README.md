@@ -1,4 +1,4 @@
-# Library Management System C
+# Library Management System in C
 
 This repository contains the source code for the semester 5 project assigned to us for the course **CS3101: Programming and Data Structures I**
 
@@ -25,7 +25,7 @@ The admin can change a user's priviledge, by demoting or promoting them.
 
 We have talked about this features in a little more detail below.
 
-### Authentication
+## Authentication
 When the application is opened it prompts the user for their username and password. If the username is new, the application asks the user if they want to sign up, and if confirmed,
 its signs the user up, and logs them in. Or otherwise, if the username and password match one record in the database, it logs that user in. Otherwise it quits the application. Saying 
 *"Login Failed!!!"*
@@ -58,77 +58,77 @@ typedef struct {
 } User;
 ```
 
-# **Chatbot Documentation**
+## **Chatbot Documentation**
 
-## **Overview**
+### **Overview**
 This chatbot uses a combination of natural language processing techniques and a weighted scoring mechanism to determine appropriate responses to user input. The core functionality includes tokenizing input, calculating weights for matching contexts, and selecting an answer based on statistical measures like mean and standard deviation.
 
 The chatbot leverages pre-stored context information and a trie-based search system to efficiently find relevant responses.
 
 ---
 
-## **Function Descriptions**
+### **Function Descriptions**
 
-### **`returnTokenList(char* input, int* count)`**
-#### Purpose:
+#### **`returnTokenList(char* input, int* count)`**
+##### Purpose:
 Tokenizes a user input string into sanitized tokens.
 
-#### Parameters:
+##### Parameters:
 - `char* input`: The input string provided by the user.
 - `int* count`: Pointer to an integer to store the number of tokens generated.
 
-#### Returns:
+##### Returns:
 - A dynamically allocated array of sanitized tokens.
 
-#### Workflow:
+##### Workflow:
 1. Splits the input string into tokens based on spaces.
 2. Sanitizes each token using the `sanitize` function.
 3. Returns the sanitized token list and updates `count` with the number of tokens.
 
 ---
 
-### **`mean(float* l, int le)`**
-#### Purpose:
+#### **`mean(float* l, int le)`**
+##### Purpose:
 Calculates the mean of a list of floating-point numbers.
 
-#### Parameters:
+##### Parameters:
 - `float* l`: Array of float numbers.
 - `int le`: Number of elements in the array.
 
-#### Returns:
+##### Returns:
 - The mean value of the array.
 
 ---
 
-### **`stdDeviation(float* l, int le)`**
-#### Purpose:
+#### **`stdDeviation(float* l, int le)`**
+##### Purpose:
 Computes the standard deviation of a list of floating-point numbers.
 
-#### Parameters:
+##### Parameters:
 - `float* l`: Array of float numbers.
 - `int le`: Number of elements in the array.
 
-#### Returns:
+##### Returns:
 - The standard deviation of the array.
 
-#### Workflow:
+##### Workflow:
 1. Calculates the mean of the array.
 2. Computes the squared differences from the mean.
 3. Returns the square root of the average squared difference.
 
 ---
 
-### **`generateAnswer(char* input)`**
-#### Purpose:
+#### **`generateAnswer(char* input)`**
+##### Purpose:
 Generates a response to the user's input.
 
-#### Parameters:
+##### Parameters:
 - `char* input`: The input query provided by the user.
 
-#### Returns:
+##### Returns:
 - A dynamically allocated string containing the chatbot's response.
 
-#### Workflow:
+##### Workflow:
 1. **Context and Trie Initialization**:
    - Reads context data from a binary file (`context-test.bin`).
    - Loads a trie structure from another binary file (`trie-test.bin`).
@@ -154,7 +154,7 @@ Generates a response to the user's input.
 
 ---
 
-## **How to Use**
+### **How to Use**
 
 1. **Setup**:
    - Ensure the necessary context and trie binary files (`context-test.bin` and `trie-test.bin`) are generated and accessible.
@@ -168,7 +168,7 @@ Generates a response to the user's input.
 
 ---
 
-## **Key Dependencies**
+### **Key Dependencies**
 - **Trie-based Search**: Efficiently finds matching tokens in the context database.
 - **Context Data**: Stores potential answers and their associated weights.
 - **Utility Functions**:
@@ -179,7 +179,7 @@ Generates a response to the user's input.
 
 ---
 
-## **Potential Improvements**
+### **Potential Improvements**
 1. **Memory Management**:
    - Add checks to ensure all dynamically allocated memory is freed.
    - Use modern memory allocation patterns to avoid leaks.
@@ -195,7 +195,7 @@ Generates a response to the user's input.
 
 ---
 
-## **Example Usage**
+### **Example Usage**
 ```c
 #include <stdio.h>
 #include "chatbot.h"
@@ -215,15 +215,14 @@ int main() {
 ```
 
 This code integrates the chatbot into a simple terminal-based interface, allowing users to ask questions and receive answers.
-### Library Utilities
-#### Search
-### **Detailed Documentation for Fuzzy Search Code**
+## Library Utilities
+### **Fuzzy Search**
 
 This documentation provides an explanation of the **C code** implementing a fuzzy search algorithm. The code performs advanced, flexible searches in a dictionary database using various techniques like the Damerau-Levenshtein metric, Soundex hashing, and synonym matching. 
 
 ---
 
-## **Code Functionality Overview**
+#### **Code Functionality Overview**
 
 The code consists of the following primary components:
 
@@ -237,16 +236,16 @@ The code consists of the following primary components:
 
 ---
 
-## **How the Code Works**
+#### **How the Code Works**
 
-### **1. `advanced_search()`**
+##### **1. `advanced_search()`**
 This function takes the following arguments:
 - **`title`**: The search term for the book title.
 - **`author`**: The search term for the book author.
 - **`pub`**: The search term for the publisher.
 - **`dict_file`**: Path to the dictionary file containing indexed data.
 
-#### **Function Workflow**:
+##### **Function Workflow**:
 1. **Separate Searches**:
    - If a search term is provided for a category (e.g., title), it performs a fuzzy search using `fuzzy_search()`.
    - Results for each category are stored in arrays (`res_title`, `res_author`, and `res_pub`).
@@ -267,15 +266,15 @@ This function takes the following arguments:
 
 ---
 
-### **2. `fuzzy_search()`**
+##### **2. `fuzzy_search()`**
 This function performs a detailed fuzzy search for a given query and category.
 
-#### **Inputs**:
+##### **Inputs**:
 - **`query`**: The search term.
 - **`cat`**: The category to search in (`1` for title, `2` for author, `3` for publisher).
 - **`dict_file`**: The dictionary file.
 
-#### **Steps**:
+##### **Steps**:
 1. **Sanitization**:
    - Prepares the query by stripping extra spaces, splitting it into terms, and sanitizing them to handle special characters.
    - Generates **Soundex hashes** for terms to handle phonetically similar words.
@@ -305,7 +304,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-## **Key Algorithms and Techniques**
+#### **Key Algorithms and Techniques**
 
 1. **Damerau-Levenshtein Distance**:
    - Measures the edit distance between two strings, accounting for operations like:
@@ -329,9 +328,9 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-## **How to Use**
+#### **How to Use**
 
-### **Input Requirements**
+##### **Input Requirements**
 - A **dictionary file (`dict_file`)**:
   - Contains indexed data structured as:
     ```
@@ -351,7 +350,7 @@ This function performs a detailed fuzzy search for a given query and category.
     "author,writer,novelist"
     ```
 
-### **Function Calls**
+##### **Function Calls**
 1. Include required headers and ensure linked implementations for:
    - Damerau-Levenshtein
    - Soundex
@@ -374,7 +373,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-## **Performance Considerations**
+#### **Performance Considerations**
 - **Memory Usage**:
   - Uses dynamically allocated memory for result arrays. Ensure all memory is freed after use.
 - **Time Complexity**:
@@ -383,7 +382,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-## **Limitations**
+#### **Limitations**
 1. **Dictionary Structure**:
    - The dictionary file must follow the specified format strictly.
 2. **Synonym Coverage**:
@@ -393,14 +392,14 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-## **Conclusion**
+#### **Conclusion**
 This code provides a robust solution for implementing a fuzzy search with support for errors, synonyms, and phonetic matching. It is particularly suited for searching in large text databases like books, documents, or metadata collections.
 
 **Search by ID:** To do this, we have implemented a binary search, in the `int idToIdx(int id)` function in `ui.c`. This returns the index of the book which has a matching ID. 
 
-#### Issuing and Returning Books
+### Issuing and Returning Books
 The users (faculty/student) can issue books from, or return their issued books to the library.
-##### Issuing a book
+#### Issuing a book
 When you trigger the command to issue a book, the function calls that are executed have been explained below.
 1. `void issuePrompt(int i)`: This function takes a variable `int i` as one of the parameters, which corresponds to the index of the the book in the global `E.Books` array. This then is passed to the next function.
 2. `void issueBook(char* username, int bookID, int nweeks)`: This function is defined in `library.c` it adds a record in the `transanctions.csv`. The structure of this database has been mentioned
@@ -420,12 +419,12 @@ If the number of copies of the book being issued is less than 5, the following f
 ```C
 nWeeks = nWeeks - (5 - copies);
 ```
-##### Returning a book
+#### Returning a book
 To return a book, one can go to the `DUES` page, and see their issued books. Once they, trigger the return a book, the following functions are called in sequence.
 1. `void returnPrompt(int i)`: This function takes the index of the issued book entry in the global `Dues` array, and then deletes it from the database.
 2. `void loadDues()`: This loads the issued books into the global books array. This has been explained later in the UI section.
 
-#### Adding, Deleting, and Editing Books
+### Adding, Deleting, and Editing Books
 Any admin who has admin priviledges can add, delete or edit books. Whenever these are triggered, the following functions are called respectively.
 1. `void addPrompt()`: This prompts the admin, to enter the details of the new book to be added to the data base. And then it calls `updateBooks()` to update the database.
 2. `void deletePrompt(int i)`: This prompts the admin for confirmation whether they *really* want to delete the record. If confirmed, it deletes the book from the global books array and calls `updateBooks()` to update the database.
@@ -473,11 +472,11 @@ The issued books are stored in `transanctions.csv` file. This file has the follo
 4. Due Date
 
 ## UI
-The User Interface for this library management system has been written in the `ui.c`. This C file implements the user interface (UI) for a library management system. It provides functionality for rendering different pages, managing user inputs, and interacting with backend modules.
+The User Interface for this library management system has been written in the `ui.c`. It provides functionality for rendering different pages, managing user inputs, and interacting with backend modules.
 
-## Overview
+### Overview
 
-### Key Features:
+#### Key Features:
 
 - Multi-page UI with views for book search, user management, dues, and chat functionalities.
 
@@ -487,9 +486,9 @@ The User Interface for this library management system has been written in the `u
 
 
 
-## Code Structure
+### Code Structure
 
-### Includes:
+#### Includes:
 
 The following libraries are used:
 
@@ -497,17 +496,54 @@ The following libraries are used:
 
 - **Custom Modules**: Headers such as `rsa.h`, `library.h`, and `chatbot.h` enable modular functionality.
 
-### Macros:
+#### Macros and Enums:
 
 Key macros defined in the file include:
-
-- `STUDLIM` and `FACLIM`: Limits for the number of students and faculty members.
 
 - `MSGTIMEOUT`: Timeout for displaying messages.
 
 - `MAXCHARLIM`: Maximum character limit for command buffers.
 
-### Data Structures:
+- `CTRL_Key()`: This is a macro that gives us the ASCII value of the character when a key is pressed along with the `Ctrl` Key.
+
+- `PAGES`: This enum stores the values for rendering different pages in the application, like the homepage, search results, book details, chat bot etc.
+
+- `cursorKeys`: This is an enum storing the keycodes for different characters, which are then returned by the `readKeyPress` function.
+
+The definitions for these macros is shown below.
+
+```C
+#define MSGTIMEOUT 3
+#define MAXCHARLIM 5000
+
+#define CTRL_Key(x) (x & 31)
+
+enum cursorKeys {
+    TAB_KEY = 9,
+    BACKSPACE = 127,
+    ARROW_LEFT = 1000,
+    ARROW_RIGHT,
+    ARROW_UP,
+    ARROW_DOWN,
+    PAGE_UP,
+    PAGE_DOWN,
+    HOME_KEY,
+    END_KEY,
+    DEL_KEY
+};
+
+enum PAGES {
+    NORMAL=0,
+    BOOK_VIEW,
+    SEARCH,
+    DUES,
+    DUE_VIEW,
+    USERS,
+    CHAT
+};
+```
+
+#### Data Structures:
 
 - **`Due`**: Tracks book issuance details, such as username, book ID, issue date, and due date.
 
@@ -515,36 +551,183 @@ Key macros defined in the file include:
 
 - **`Chat`**: Stores chatbot interactions (questions and answers).
 
-- **`state`**: Maintains the current state of the UI, including cursor position, active page, and user information.
+- **`state`**: Maintains the current state of the UI, including cursor position, active page, and user information etc.
+
+The definitions for these Structs are shown below:
+```C
+typedef struct {
+    char* uname;
+    int bookID;
+    time_t issueDate;
+    time_t dueDate;
+} Due;
+```
+
+```C
+typedef struct {
+    char* uname;
+    int priv;
+} Userd;
+```
+
+```C
+typedef struct {
+    char* question;
+    char* answer;
+} Chat;
+```
+
+```c
+struct state {
+    int cx, cy, screenrows, screencols, rowoff, numResults;
+    struct termios orig_term;
+    Book* books;
+    int nbooks;
+    char* username;
+    int userPriv;
+    int page;
+    char commandBuf[MAXCHARLIM];
+    time_t commandTime;
+    int* sIdx;
+    Due* dues;
+    int nDues;
+    Userd* users;
+    int nUsers;
+    Chat chat;
+};
+```
+### Functions
+
+#### `enableRawMode`
+- This function turns off canonical mode in the terminal and turns it into raw mode.
+
+#### `die`
+- Kill the application if it throws an error and quit with an error message.
+
+#### `disableRawMode`
+- Reset the terminal.
+
+#### `readKeyPress`
+- Read key presses from the terminal stdin.
+
+#### `freeBooks`
+- Free the global books array.
+
+#### `freeDues`
+- Free the global dues array.
+
+#### `quitApp`
+- Function to run when the user sends the quit signal. Frees the global arrays and resets the terminal.
+
+#### `searchByID`
+- A function to search the book database by ID.
+
+#### `idtoIdx`
+- A binary search function that returns the index of the book when the ID of the book is passed into it.
+
+#### `moveCursor`
+- Move the cursor when the arrow keys are pressed.
+
+#### `loadBooks`
+- Loads the books when the app is started.
+
+#### `loadDues`
+- Loads the due books when the app is started.
+
+#### `loadUsers`
+- Load the users list for the admin.
+
+#### `drawUsers`
+- Draw the users table.
+
+#### `changeUserPriv`
+- Change the user type.
+
+#### `returnPrompt`
+- This function lets the user return a book.
+
+#### `statusBar`
+- Draws the bottom status bar.
+
+#### `topBar`
+- Draw the top bar.
+
+#### `drawBooksTable`
+- Draw the table of books on the homepage.
+
+#### `chatPrompt`
+- Prompt the user to ask questions to the chatbot.
+
+#### `drawChat`
+- Render the chatbot page.
+
+#### `drawDues`
+- Render the dues table.
+
+#### `drawDueDeets`
+- Render the details of a particular issued book record.
+
+#### `drawSearchResults`
+- Render the search results.
+
+#### `drawCommand`
+- Draw the command bar.
+
+#### `setCommandMsg`
+- Set the text in the command bar.
+
+#### `drawHelp`
+- Render the help bar.
+
+#### `drawQuit`
+- Draw the quit instruction.
+
+#### `commandPrompt`
+- Prompt the user for an input. Takes a FORMAT string as an input and returns a string (`char *`).
+
+#### `deletePrompt`
+- Prompt the user to delete a book and ask for confirmation.
+
+#### `addPrompt`
+- Prompt the user to add details about a new book.
+
+#### `editPrompt`
+- Edit book details.
+
+#### `issuePrompt`
+- Prompt the user to issue a book.
+
+#### `searchPrompt`
+- Prompt the user for a search.
+
+#### `advancedSearchPrompt`
+- Advanced search functionality.
+
+#### `scroll`
+- Scrolls the page by setting the global `E.rowoff` variable to set a row offset.
+
+#### `goToxy`
+- Sends the cursor to the x-th column and the y-th row.
+
+#### `resetScreen`
+- Resets the screen, clears it, and returns the cursor to `(0, 0)`.
+
+#### `refreshScreen`
+- Refreshes the screen and draws everything to the screen.
+
+#### `init`
+- Initializes the UI and logs the user in. Called at the beginning of the main function.
+
+#### `getWindowSize`
+- Gets dimensions of the terminal window in rows and columns and writes to the pointers passed as parameters.
+
+#### `getCursorPosition`
+- Gets the cursor position into the pointers passed as parameters.
 
 
-
-## Functions
-
-### Core Functionalities:
-
-1. **Rendering Pages**:
-
-   Functions responsible for displaying specific views, such as `NORMAL`, `BOOK_VIEW`, or `CHAT`.
-
-2. **Command Handling**:
-
-   Processes user inputs and updates the UI state accordingly.
-
-3. **Integration**:
-
-   Interfaces with backend modules for operations like user authentication, book search, and chatbot responses.
-
-### Interaction Flow:
-
-- The UI listens for user commands, processes inputs, and updates the terminal display.
-
-- Modular design ensures seamless communication with other components, such as the library system and encryption module.
-
-## Dependencies
+### Dependencies
 - Terminal support for ANSI escape codes (for UI rendering).
 
-- Backend modules (`rsa.h`, `library.h`, etc.) for full functionality.
 ## Contributions
 | Debayan Sarkar [(@TheSilyCoder)](https://github.com/TheSillyCoder)| Diptanuj Sarkar [(@CasioWave)](https://github.com/CasioWave)|
 | --------| --------|
@@ -552,4 +735,5 @@ Key macros defined in the file include:
 | Database CRUD operations | Search | 
 | Authentication | RSA |
 ## References
-1. k&r
+1. [The C Programming Language - By Brian W. Kernighan, Dennis M. Ritchie](https://ia903407.us.archive.org/35/items/the-ansi-c-programming-language-by-brian-w.-kernighan-dennis-m.-ritchie.org/The%20ANSI%20C%20Programming%20Language%20by%20Brian%20W.%20Kernighan%2C%20Dennis%20M.%20Ritchie.pdf)
+2. [Video Display Terminal Information](https://vt100.net/)
