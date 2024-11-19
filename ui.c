@@ -497,6 +497,7 @@ void returnPrompt(int i) {
     updateBooks(E.books, E.nbooks, 0);
     loadDues();
     E.page = DUES;
+    E.cy = 0;
     setCommandMsg("Returned the book with ID %d to the library.", due.bookID);
 }
 
