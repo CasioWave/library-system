@@ -58,8 +58,163 @@ typedef struct {
 } User;
 ```
 
-### Chatbot
-Likhe felo
+# **Chatbot Documentation**
+
+## **Overview**
+This chatbot uses a combination of natural language processing techniques and a weighted scoring mechanism to determine appropriate responses to user input. The core functionality includes tokenizing input, calculating weights for matching contexts, and selecting an answer based on statistical measures like mean and standard deviation.
+
+The chatbot leverages pre-stored context information and a trie-based search system to efficiently find relevant responses.
+
+---
+
+## **Function Descriptions**
+
+### **`returnTokenList(char* input, int* count)`**
+#### Purpose:
+Tokenizes a user input string into sanitized tokens.
+
+#### Parameters:
+- `char* input`: The input string provided by the user.
+- `int* count`: Pointer to an integer to store the number of tokens generated.
+
+#### Returns:
+- A dynamically allocated array of sanitized tokens.
+
+#### Workflow:
+1. Splits the input string into tokens based on spaces.
+2. Sanitizes each token using the `sanitize` function.
+3. Returns the sanitized token list and updates `count` with the number of tokens.
+
+---
+
+### **`mean(float* l, int le)`**
+#### Purpose:
+Calculates the mean of a list of floating-point numbers.
+
+#### Parameters:
+- `float* l`: Array of float numbers.
+- `int le`: Number of elements in the array.
+
+#### Returns:
+- The mean value of the array.
+
+---
+
+### **`stdDeviation(float* l, int le)`**
+#### Purpose:
+Computes the standard deviation of a list of floating-point numbers.
+
+#### Parameters:
+- `float* l`: Array of float numbers.
+- `int le`: Number of elements in the array.
+
+#### Returns:
+- The standard deviation of the array.
+
+#### Workflow:
+1. Calculates the mean of the array.
+2. Computes the squared differences from the mean.
+3. Returns the square root of the average squared difference.
+
+---
+
+### **`generateAnswer(char* input)`**
+#### Purpose:
+Generates a response to the user's input.
+
+#### Parameters:
+- `char* input`: The input query provided by the user.
+
+#### Returns:
+- A dynamically allocated string containing the chatbot's response.
+
+#### Workflow:
+1. **Context and Trie Initialization**:
+   - Reads context data from a binary file (`context-test.bin`).
+   - Loads a trie structure from another binary file (`trie-test.bin`).
+
+2. **Tokenization**:
+   - Tokenizes and sanitizes the input using `returnTokenList`.
+
+3. **Token Weight Calculation**:
+   - Searches the trie for each token and retrieves corresponding weights.
+
+4. **Weight Aggregation**:
+   - Aggregates weights for each potential response.
+
+5. **Normalization and Sorting**:
+   - Normalizes the aggregated weights and sorts them in descending order using `bubbleSortDescending`.
+
+6. **Answer Selection**:
+   - Determines the top response based on statistical analysis of weights.
+   - If the difference between the top weight and the mean is less than half the standard deviation or the weight is invalid (NaN), a fallback response is given.
+
+7. **Memory Management**:
+   - Frees dynamically allocated memory and returns the response.
+
+---
+
+## **How to Use**
+
+1. **Setup**:
+   - Ensure the necessary context and trie binary files (`context-test.bin` and `trie-test.bin`) are generated and accessible.
+
+2. **Integrate with User Input**:
+   - Use `generateAnswer` to process user queries.
+   - Pass the user's query string to `generateAnswer` and display the returned response.
+
+3. **Error Handling**:
+   - Fallback response: If the chatbot cannot determine an answer, it responds with a default message: *"I'm sorry, but I do not know how to answer that!"*
+
+---
+
+## **Key Dependencies**
+- **Trie-based Search**: Efficiently finds matching tokens in the context database.
+- **Context Data**: Stores potential answers and their associated weights.
+- **Utility Functions**:
+  - `str_split`: Splits a string by a delimiter.
+  - `sanitize`: Prepares tokens for comparison by removing unwanted characters.
+  - `bubbleSortDescending`: Sorts arrays in descending order.
+  - `inPlaceNormalize`: Normalizes weights.
+
+---
+
+## **Potential Improvements**
+1. **Memory Management**:
+   - Add checks to ensure all dynamically allocated memory is freed.
+   - Use modern memory allocation patterns to avoid leaks.
+
+2. **Error Handling**:
+   - Validate input and files to handle missing or corrupted data gracefully.
+
+3. **Optimization**:
+   - Replace `bubbleSortDescending` with a more efficient sorting algorithm for larger datasets.
+
+4. **Customizability**:
+   - Allow dynamic updates to the context database without recompiling or replacing binary files.
+
+---
+
+## **Example Usage**
+```c
+#include <stdio.h>
+#include "chatbot.h"
+
+int main() {
+    char query[256];
+    printf("Ask me a question: ");
+    fgets(query, 256, stdin);
+
+    // Generate a response
+    char* response = generateAnswer(query);
+    printf("Chatbot: %s\n", response);
+
+    free(response); // Free allocated response memory
+    return 0;
+}
+```
+
+This code integrates the chatbot into a simple terminal-based interface, allowing users to ask questions and receive answers.
 ### Library Utilities
 #### Search
 TODO
