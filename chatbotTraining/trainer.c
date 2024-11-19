@@ -5,10 +5,10 @@ char classes[NO_CLASSES][10] = {"ui","help","random","niceties","stats","functio
 int main(){
     AnswerNode* crop = (AnswerNode*) malloc(100*sizeof(AnswerNode));
     int no_crop = 0;
-    printf("Welcome to CHATBOT TRAINER VER 0.1 (GONE BAD)! \n\n");
+    printf("Welcome to CHATBOT TRAINER VER 0.1! \n\n");
     while(1){
         int c1 = 0;
-        printf("1 = Print the categories of conversation\n");
+        //printf("1 = Print the categories of conversation\n");
         printf("2 = Start conversation training\n");
         printf("3 = Quit \n");
         printf("Enter choice -> ");
@@ -64,6 +64,7 @@ int main(){
                     printf("\n");
                 }
                 printf("\n");
+                /*
                 printf("Now, give a score (out of 10) to each category depending on how relevant this prompt is to it - \n");
                 for (int i = 0; i < NO_CLASSES; ++i){
                     int sc = 0;
@@ -78,8 +79,9 @@ int main(){
                     class_vec[i] = (float) sc;
                     printf("\n");
                 }
+                */
                 printf("This answer is done!\n");
-                inPlaceNormalize(class_vec, NO_CLASSES);
+                //inPlaceNormalize(class_vec, NO_CLASSES);
                 crop[no_crop] = *createAnswer();
                 prepareAnswer(ans, class_vec, pro, &crop[no_crop]);
                 free(pro);
