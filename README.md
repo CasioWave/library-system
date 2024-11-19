@@ -216,7 +216,7 @@ int main() {
 
 This code integrates the chatbot into a simple terminal-based interface, allowing users to ask questions and receive answers.
 ## Library Utilities
-#### **Fuzzy Search**
+### **Fuzzy Search**
 
 This documentation provides an explanation of the **C code** implementing a fuzzy search algorithm. The code performs advanced, flexible searches in a dictionary database using various techniques like the Damerau-Levenshtein metric, Soundex hashing, and synonym matching. 
 
@@ -238,7 +238,7 @@ The code consists of the following primary components:
 
 #### **How the Code Works**
 
-#### **1. `advanced_search()`**
+##### **1. `advanced_search()`**
 This function takes the following arguments:
 - **`title`**: The search term for the book title.
 - **`author`**: The search term for the book author.
@@ -266,15 +266,15 @@ This function takes the following arguments:
 
 ---
 
-### **2. `fuzzy_search()`**
+##### **2. `fuzzy_search()`**
 This function performs a detailed fuzzy search for a given query and category.
 
-#### **Inputs**:
+##### **Inputs**:
 - **`query`**: The search term.
 - **`cat`**: The category to search in (`1` for title, `2` for author, `3` for publisher).
 - **`dict_file`**: The dictionary file.
 
-#### **Steps**:
+##### **Steps**:
 1. **Sanitization**:
    - Prepares the query by stripping extra spaces, splitting it into terms, and sanitizing them to handle special characters.
    - Generates **Soundex hashes** for terms to handle phonetically similar words.
@@ -304,7 +304,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-### **Key Algorithms and Techniques**
+#### **Key Algorithms and Techniques**
 
 1. **Damerau-Levenshtein Distance**:
    - Measures the edit distance between two strings, accounting for operations like:
@@ -328,9 +328,9 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-### **How to Use**
+#### **How to Use**
 
-#### **Input Requirements**
+##### **Input Requirements**
 - A **dictionary file (`dict_file`)**:
   - Contains indexed data structured as:
     ```
@@ -350,7 +350,7 @@ This function performs a detailed fuzzy search for a given query and category.
     "author,writer,novelist"
     ```
 
-### **Function Calls**
+##### **Function Calls**
 1. Include required headers and ensure linked implementations for:
    - Damerau-Levenshtein
    - Soundex
@@ -373,7 +373,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-### **Performance Considerations**
+#### **Performance Considerations**
 - **Memory Usage**:
   - Uses dynamically allocated memory for result arrays. Ensure all memory is freed after use.
 - **Time Complexity**:
@@ -382,7 +382,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-### **Limitations**
+#### **Limitations**
 1. **Dictionary Structure**:
    - The dictionary file must follow the specified format strictly.
 2. **Synonym Coverage**:
@@ -392,7 +392,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-### **Conclusion**
+#### **Conclusion**
 This code provides a robust solution for implementing a fuzzy search with support for errors, synonyms, and phonetic matching. It is particularly suited for searching in large text databases like books, documents, or metadata collections.
 
 **Search by ID:** To do this, we have implemented a binary search, in the `int idToIdx(int id)` function in `ui.c`. This returns the index of the book which has a matching ID. 
