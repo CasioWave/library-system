@@ -9,7 +9,6 @@
 char** returnTokenList(char* input, int* count);
 float mean(float* l,int le);
 float stdDeviation(float* l, int le);
-char* generateAnswer(char* input);
 
 
 // Trie Node Structure
