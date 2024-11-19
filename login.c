@@ -8,6 +8,7 @@
 
 int NUSERS = 0;
 
+// loads the users from the userdatabase and returns an array of users structs
 User* fetchUsers(char *filename) {
     FILE* fp;
     fp = fopen(filename, "r");
@@ -33,6 +34,7 @@ User* fetchUsers(char *filename) {
     return users;
 }
 
+// logs the user in, and sets the username and userpriviledge in the pointers passed to it as parameters
 int login(int *priv, char ** uname) {
     char username[LOGIN_MAXLIM];
     char password[LOGIN_MAXLIM];
@@ -80,6 +82,7 @@ int login(int *priv, char ** uname) {
     return ret;
 }
 
+// register a new user by writing it to the database
 void registerUser(char* username, char* password) {
     FILE* fp = NULL;
     fp = fopen("users.csv", "a");
