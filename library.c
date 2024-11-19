@@ -45,10 +45,6 @@ Book* fetchBooks(char * fname, int* nbooks) {
         books[i].qty = atoi(bookData.data[i][QTY]);
 
     }
-    for (int i = 0; i < bookData.nrows; ++i) {
-        free(bookData.data[i]);
-    }
-    free(bookData.data);
     return books;
 }
 

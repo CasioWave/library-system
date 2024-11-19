@@ -818,10 +818,6 @@ void addPrompt() {
     E.books = realloc(E.books, (E.nbooks + 1)*sizeof(Book));
     E.books[E.nbooks++] = book;
     updateBooks(E.books, E.nbooks, 1);
-    free(book.title);
-    free(book.authors);
-    free(book.publisher);
-    free(book.pubDate);
     setCommandMsg("Added Book calld %s with ID %d",book.title, book.id);
 }
 void editPrompt(int i) {
@@ -865,7 +861,6 @@ void editPrompt(int i) {
             break;
     }
     updateBooks(E.books, E.nbooks, flag);
-    free(val);
     setCommandMsg("Successfully Edited the book");
 }
 void issuePrompt(int i) {
@@ -972,9 +967,6 @@ void advancedSearchPrompt() {
         E.rowoff = 0;
         E.cy = 0;
     }
-    free(title);
-    free(author);
-    free(publisher);
 }
 
 void scroll() {
