@@ -65,7 +65,7 @@ TODO
 **Search by ID:** To do this, we have implemented a binary search, in the `int idToIdx(int id)` function in `ui.c`. This returns the index of the book which has a matching ID. 
 
 #### Issuing and Returning Books
-TODO
+The users (faculty/student) can issue books from, or return their issued books to the library. They want.
 #### Adding, Deleting, and Editing Books
 TODO
 ## Databases

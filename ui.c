@@ -13,6 +13,7 @@
 #include "login.h"
 #include "utils.h"
 #include "chatbot.h"
+#include "preprocess.h"
 
 #define STUDLIM 8
 #define FACLIM 16
@@ -762,6 +763,7 @@ void deletePrompt(int i) {
     E.nbooks--;
     E.books = realloc(E.books, E.nbooks*sizeof(Book));
     updateBooks(E.books, E.nbooks, 1);
+    preprocess();
     E.page = NORMAL;
     free(E.sIdx);
     E.sIdx = NULL;
