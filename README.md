@@ -23,7 +23,7 @@ while the admins can add, delete, and edit books. It also has a search functiona
 are classified using a user priviledge parameter, and the users are split into 3 seperate classes, "admins", "student", and "faculty". It also has a chatbot `Clippy`, which can answer your questions. 
 The admin can change a user's priviledge, by demoting or promoting them. 
 
-We have talked about this features in a little more detail below.
+We have talked about these features in a little more detail below.
 
 ## Authentication
 When the application is opened it prompts the user for their username and password. If the username is new, the application asks the user if they want to sign up, and if confirmed,
