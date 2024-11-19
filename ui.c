@@ -67,7 +67,6 @@ struct state {
     Userd* users;
     int nUsers;
     Chat chat;
-    int nChats;
 };
 struct state E; // a global state variable
 
@@ -1076,7 +1075,7 @@ void refreshScreen() {
 
 // initialises the UI and logs the user in. This is called at the beggining of the main function
 void init() {
-    E.nChats = E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
+    E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
     E.sIdx = NULL;
     E.chat.answer = NULL;
     E.chat.question = NULL;
