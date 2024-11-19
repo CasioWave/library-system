@@ -215,14 +215,14 @@ int main() {
 ```
 
 This code integrates the chatbot into a simple terminal-based interface, allowing users to ask questions and receive answers.
-#### Library Utilities
-##### **Fuzzy Search**
+## Library Utilities
+#### **Fuzzy Search**
 
 This documentation provides an explanation of the **C code** implementing a fuzzy search algorithm. The code performs advanced, flexible searches in a dictionary database using various techniques like the Damerau-Levenshtein metric, Soundex hashing, and synonym matching. 
 
 ---
 
-##### **Code Functionality Overview**
+#### **Code Functionality Overview**
 
 The code consists of the following primary components:
 
@@ -236,16 +236,16 @@ The code consists of the following primary components:
 
 ---
 
-##### **How the Code Works**
+#### **How the Code Works**
 
-##### **1. `advanced_search()`**
+#### **1. `advanced_search()`**
 This function takes the following arguments:
 - **`title`**: The search term for the book title.
 - **`author`**: The search term for the book author.
 - **`pub`**: The search term for the publisher.
 - **`dict_file`**: Path to the dictionary file containing indexed data.
 
-###### **Function Workflow**:
+##### **Function Workflow**:
 1. **Separate Searches**:
    - If a search term is provided for a category (e.g., title), it performs a fuzzy search using `fuzzy_search()`.
    - Results for each category are stored in arrays (`res_title`, `res_author`, and `res_pub`).
@@ -266,15 +266,15 @@ This function takes the following arguments:
 
 ---
 
-#### **2. `fuzzy_search()`**
+### **2. `fuzzy_search()`**
 This function performs a detailed fuzzy search for a given query and category.
 
-##### **Inputs**:
+#### **Inputs**:
 - **`query`**: The search term.
 - **`cat`**: The category to search in (`1` for title, `2` for author, `3` for publisher).
 - **`dict_file`**: The dictionary file.
 
-##### **Steps**:
+#### **Steps**:
 1. **Sanitization**:
    - Prepares the query by stripping extra spaces, splitting it into terms, and sanitizing them to handle special characters.
    - Generates **Soundex hashes** for terms to handle phonetically similar words.
@@ -304,7 +304,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-#### **Key Algorithms and Techniques**
+### **Key Algorithms and Techniques**
 
 1. **Damerau-Levenshtein Distance**:
    - Measures the edit distance between two strings, accounting for operations like:
@@ -328,9 +328,9 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-#### **How to Use**
+### **How to Use**
 
-##### **Input Requirements**
+#### **Input Requirements**
 - A **dictionary file (`dict_file`)**:
   - Contains indexed data structured as:
     ```
@@ -350,7 +350,7 @@ This function performs a detailed fuzzy search for a given query and category.
     "author,writer,novelist"
     ```
 
-#### **Function Calls**
+### **Function Calls**
 1. Include required headers and ensure linked implementations for:
    - Damerau-Levenshtein
    - Soundex
@@ -373,7 +373,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-#### **Performance Considerations**
+### **Performance Considerations**
 - **Memory Usage**:
   - Uses dynamically allocated memory for result arrays. Ensure all memory is freed after use.
 - **Time Complexity**:
@@ -382,7 +382,7 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-#### **Limitations**
+### **Limitations**
 1. **Dictionary Structure**:
    - The dictionary file must follow the specified format strictly.
 2. **Synonym Coverage**:
@@ -392,14 +392,14 @@ This function performs a detailed fuzzy search for a given query and category.
 
 ---
 
-#### **Conclusion**
+### **Conclusion**
 This code provides a robust solution for implementing a fuzzy search with support for errors, synonyms, and phonetic matching. It is particularly suited for searching in large text databases like books, documents, or metadata collections.
 
 **Search by ID:** To do this, we have implemented a binary search, in the `int idToIdx(int id)` function in `ui.c`. This returns the index of the book which has a matching ID. 
 
-#### Issuing and Returning Books
+### Issuing and Returning Books
 The users (faculty/student) can issue books from, or return their issued books to the library.
-##### Issuing a book
+#### Issuing a book
 When you trigger the command to issue a book, the function calls that are executed have been explained below.
 1. `void issuePrompt(int i)`: This function takes a variable `int i` as one of the parameters, which corresponds to the index of the the book in the global `E.Books` array. This then is passed to the next function.
 2. `void issueBook(char* username, int bookID, int nweeks)`: This function is defined in `library.c` it adds a record in the `transanctions.csv`. The structure of this database has been mentioned
@@ -419,12 +419,12 @@ If the number of copies of the book being issued is less than 5, the following f
 ```C
 nWeeks = nWeeks - (5 - copies);
 ```
-##### Returning a book
+#### Returning a book
 To return a book, one can go to the `DUES` page, and see their issued books. Once they, trigger the return a book, the following functions are called in sequence.
 1. `void returnPrompt(int i)`: This function takes the index of the issued book entry in the global `Dues` array, and then deletes it from the database.
 2. `void loadDues()`: This loads the issued books into the global books array. This has been explained later in the UI section.
 
-#### Adding, Deleting, and Editing Books
+### Adding, Deleting, and Editing Books
 Any admin who has admin priviledges can add, delete or edit books. Whenever these are triggered, the following functions are called respectively.
 1. `void addPrompt()`: This prompts the admin, to enter the details of the new book to be added to the data base. And then it calls `updateBooks()` to update the database.
 2. `void deletePrompt(int i)`: This prompts the admin for confirmation whether they *really* want to delete the record. If confirmed, it deletes the book from the global books array and calls `updateBooks()` to update the database.
