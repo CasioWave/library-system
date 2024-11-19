@@ -12,6 +12,7 @@
 #include "library.h"
 #include "login.h"
 #include "utils.h"
+#include "chatbot.h"
 
 #define STUDLIM 8
 #define FACLIM 16
@@ -537,7 +538,7 @@ void chatPrompt() {
         free(E.chat.answer);
     }
     E.chat.question = strdup(question);
-    E.chat.answer = strdup("go fuck yourself");
+    E.chat.answer = strdup(generateAnswer(question));
 }
 void drawChat() {
     E.rowoff = 0;
@@ -552,8 +553,10 @@ void drawChat() {
     if (E.chat.question != NULL) {
         char rec[MAXCHARLIM];
         int len = snprintf(rec, sizeof(rec), "\x1b[33m[You]\x1b[0m %s\r\n", E.chat.question);
+        extra = extra + (len/E.screencols);
         write(STDOUT_FILENO, rec, len);
         len = snprintf(rec, sizeof(rec), "\x1b[32m[library bot]\x1b[0m %s\r\n", E.chat.answer);
+        extra = extra + (len/E.screencols);
         write(STDOUT_FILENO, rec, len);
         write(STDOUT_FILENO, "\x1b[K", 3);
     }
