@@ -1,12 +1,46 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #define MAXPRIME 1000
 #include "rsa.h"
 
-unsigned long int prime_product;
-unsigned long int public_key, private_key;
+int encryptFile(char* file, char* out_file, int public_key, unsigned long prime_product){
+    FILE* fileptr = fopen(file, "r");
+    FILE* outptr = fopen(out_file,"w");
+    if (fileptr == NULL){
+        printf("FAILED TO OPEN\n");
+        return 1;
+    }
+    char ch;
+    while ((ch = fgetc(fileptr)) != EOF){
+        int enc = encrypt(ch,public_key,prime_product);
+        //printf("%d\n",enc);
+        fprintf(outptr, "%d\n", enc);
+    }
+    fclose(fileptr);
+    fclose(outptr);
+    return 0;
+}
 
-unsigned long int encrypt(unsigned long int msg){
+int decryptFile(char* infile, char* outfile, int private_key, unsigned long prime_product){
+    FILE* inptr = fopen(infile, "r");
+    FILE* outptr = fopen(outfile, "w");
+    if (inptr == NULL){
+        return 1;
+    }
+    char ch;
+    while (!feof(inptr)){
+        int clear;
+        fscanf(inptr, "%d\n", &clear);
+        //printf("%d\n",clear);
+        fputc(decrypt(clear, private_key, prime_product),outptr);
+    }
+    fclose(inptr);
+    fclose(outptr);
+    return 0;
+}
+
+unsigned long int encrypt(unsigned long int msg, int public_key, unsigned long prime_product){
     int e = public_key;
     unsigned long int enc = 1;
     
@@ -17,7 +51,7 @@ unsigned long int encrypt(unsigned long int msg){
     return enc;
 }
 
-unsigned long int decrypt(unsigned long int enc){
+unsigned long int decrypt(unsigned long int enc, int private_key, unsigned prime_product){
     int d = private_key;
     unsigned long int msg = 1;
     while (d--){
@@ -27,7 +61,7 @@ unsigned long int decrypt(unsigned long int enc){
     return msg;
 }
 
-int setkeys(){
+unsigned long* setkeys(){
     short num[MAXPRIME];
     unsigned long int primes[1000];
 
@@ -38,7 +72,7 @@ int setkeys(){
     }
     num[0] = 0;
     num[1] = 0;
-
+    //The Sieve
     for (i = 2; i <= MAXPRIME; ++i){
         if (num[i] == 0)
             continue;
@@ -67,8 +101,7 @@ int setkeys(){
         d = diff(p,q);
     }
     
-    
-    prime_product = p*q;
+    unsigned long prime_product = p*q;
     unsigned long int * fi = (unsigned long int*) malloc(sizeof(unsigned long int));
     unsigned long int* e = (unsigned long int*) malloc(sizeof(unsigned long int));
     *fi = (p-1)*(q-1);
@@ -77,9 +110,9 @@ int setkeys(){
         if (gcd(*fi,*e)==1){
             break;
         }
-        ++e;
+        ++(*e);
     }
-    public_key = *e;
+    int public_key = *e;
     unsigned long int* priv = (unsigned long int*) malloc(sizeof(unsigned long int));
     *(priv) = 2;
     while  (1){
@@ -88,8 +121,12 @@ int setkeys(){
         }
         ++(*priv);
     }
-    private_key = *(priv);
-    return 0;
+    int private_key = *(priv);
+    unsigned long* key_pair = (unsigned long*) malloc(3*sizeof(unsigned long));
+    key_pair[0] = public_key;
+    key_pair[1] = private_key;
+    key_pair[2] = prime_product;
+    return key_pair;
 }
 
 unsigned long int returnRandom(unsigned long int min, unsigned long int max){
