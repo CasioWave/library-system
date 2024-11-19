@@ -8,7 +8,7 @@ To compile the source, first download it, by either cloning it, or downloading i
 
 An example has been provided below (for cloning the repo using git-cli and then compiling it).
 
-```
+```bash
 git clone https://github.com/TheSillyCoder/library-system.git
 cd library-system
 make
@@ -37,12 +37,12 @@ The functions being called in this process are as follows:
 
 The return values of `login` are here 
 
-```
+```C
 #define LOGIN_SUCCESS 0 
 #define LOGIN_FAILURE -1
 ```
 The priviledges have the following values:
-```
+```C
 enum PRIV {
     ADMIN=1,
     FACULTY=2,
@@ -50,7 +50,7 @@ enum PRIV {
 };
 ```
 The forementioned `User` struct has been defined as follows.
-```
+```C
 typedef struct {
     char* username;
     char* password;
@@ -75,7 +75,7 @@ below.
 **Note:** If a book has less than 3 copies, only faculty can issue the book. Also, there's a upper bound on the number of books that can be issued by the users, namely `STUDILIM` and `FACILIM`. Also
 the default number of weeks for which a book can be issued is defined as `STUDLIM` and `FACLIM`.
 Here are the definitions for these limits defined in `ui.c`.
-```
+```C
 #define STUDLIM 8
 #define FACLIM 16
 
@@ -83,14 +83,37 @@ Here are the definitions for these limits defined in `ui.c`.
 #define FACILIM 10
 ```
 If the number of copies of the book being issued is less than 5, the following formula is used to calculate the number of weeks for which the book will be issued.
-```
+```C
 nWeeks = nWeeks - (5 - copies);
 ```
 ##### Returning a book
-huhuhuhu
+To return a book, one can go to the `DUES` page, and see their issued books. Once they, trigger the return a book, the following functions are called in sequence.
+1. `void returnPrompt(int i)`: This function takes the index of the issued book entry in the global `Dues` array, and then deletes it from the database.
+2. `void loadDues()`: This loads the issued books into the global books array. This has been explained later in the UI section.
 
 #### Adding, Deleting, and Editing Books
-TODO
+Any admin who has admin priviledges can add, delete or edit books. Whenever these are triggered, the following functions are called respectively.
+1. `void addPrompt()`: This prompts the admin, to enter the details of the new book to be added to the data base. And then it calls `updateBooks()` to update the database.
+2. `void deletePrompt(int i)`: This prompts the admin for confirmation whether they *really* want to delete the record. If confirmed, it deletes the book from the global books array and calls `updateBooks()` to update the database.
+3. `void editPrompt(int i)`: This prompts the admin to enter what field they want to edit. And then it edits that book in the global books array and then calls `updateBooks()` to update the database.
+
+All of these functions call the function `updateBooks()`. This function has been explained below.
+
+`void updateBooks(Book* books, int nbooks)`: This function takes an array of books and the number of books in that array as parameters and writes it to the database.
+
+The `Book` struct was defined like this:
+```C
+typedef struct  {
+    int id;
+    char* title;
+    char* authors;
+    char* publisher;
+    char* pubDate;
+    int pages;
+    int qty;
+} Book;
+```
+
 ## Databases
 All the databases used in this application are in CSV format. 
 ### Books
