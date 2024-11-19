@@ -561,17 +561,22 @@ typedef struct {
     time_t issueDate;
     time_t dueDate;
 } Due;
+```
 
+```C
 typedef struct {
     char* uname;
     int priv;
 } Userd;
 
+```c
 typedef struct {
     char* question;
     char* answer;
 } Chat;
+```
 
+```c
 struct state {
     int cx, cy, screenrows, screencols, rowoff, numResults;
     struct termios orig_term;
