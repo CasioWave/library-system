@@ -1,4 +1,4 @@
-# Library Management System C
+# Library Management System in C
 
 This repository contains the source code for the semester 5 project assigned to us for the course **CS3101: Programming and Data Structures I**
 
