@@ -68,7 +68,7 @@ struct state {
     Chat chat;
     int nChats;
 };
-struct state E;
+struct state E; // a global state variable
 
 // This function turns off canonical mode in the terminal and turns it into raw mode
 void enableRawMode() {

@@ -22,6 +22,7 @@ enum bookDataFields  {
     QTY
 };
 
+// fetches the books from the database and returns a malloced array
 Book* fetchBooks(char * fname, int* nbooks) {
     Book* books;
     FILE* fp;
@@ -48,6 +49,7 @@ Book* fetchBooks(char * fname, int* nbooks) {
     return books;
 }
 
+// function to perform a free-text fuzzy search
 void search(int** idx, int *numResults, Book** books, int nbooks, char* searchStr) {
     /* *numResults = fuzzy_search(searchStr, "dict_soundex.csv", idx); */
     /* *numResults = 5; */
@@ -77,6 +79,7 @@ void search(int** idx, int *numResults, Book** books, int nbooks, char* searchSt
     /* *numResults = c; */
 }
 
+// A function to perform advanced search 
 void advancedSearch(int** idx, int *numResults, Book** books, int nbooks, char* title, char* author, char* publisher) {
     *idx = NULL;
     int* results = advanced_search(title, author, publisher, "dict_soundex.csv");
@@ -95,6 +98,7 @@ void advancedSearch(int** idx, int *numResults, Book** books, int nbooks, char* 
     free(results);
 }
 
+// Write a book issue record to the database
 int issueBook(char* uname, int bookID, int nweeks) {
     time_t t;
     t = time(NULL);
@@ -110,6 +114,7 @@ int issueBook(char* uname, int bookID, int nweeks) {
     return 0;
 }
 
+// Update the books database
 void updateBooks(Book* books, int nbooks, int prep) {
     char row[MAXCHARLIM];
     int len = snprintf(row, sizeof(row), "%s,%s,%s,%s,%s,%s,%s", "bookID", "title", "authors", "num_pages", "publication_date", "publisher", "qty");
