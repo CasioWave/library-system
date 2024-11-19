@@ -38,7 +38,28 @@ TODO
 ### Authentication
 DODO
 ## Databases
-DODO PAAKHI
+All the databases used in this application are in CSV format. 
+### Books
+The books are stored in `books-clean.csv` file. This dataset was downloaded from kaggle. It has the following fields:
+1. book ID
+2. Book title
+3. Book authors
+4. Number of Pages in the book
+5. Publication date
+6. Publisher
+7. Copies Available
+### Users
+The users are stored in `users.csv` file. This file has the following fields:
+1. Username
+2. Password
+3. Userfield
+
+### Issued Books
+The issued books are stored in `transanctions.csv` file. This file has the following fields:
+1. Username
+2. Book ID
+3. Issue Date
+4. Due Date
 
 ## UI
 OMAGO
