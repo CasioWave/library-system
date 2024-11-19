@@ -143,7 +143,7 @@ The issued books are stored in `transanctions.csv` file. This file has the follo
 ## UI
 OMAGO
 ## Contributions
-| Debayan Sarkar     | Diptanuj Sarkar |
+| Debayan Sarkar [(@TheSilyCoder)](https://github.com/TheSillyCoder)| Diptanuj Sarkar [(@CasioWave)](https://github.com/CasioWave)|
 | --------| --------|
 | User Interface | Chatbot |
 | Database CRUD operations | Search | 
