@@ -62,12 +62,6 @@ int main(){
     }
     saveTrieToFile("trie-test.bin", root);
     freeTrie(root);
-    /*
-    TrieNode* res = search(root, "hello");
-    for (int i = 0; i < count; ++i){
-        printf("Weight for %d answer -> %.2f\n",i,(double)res->meaning[i]);
-    }
-    */
     //Now we form the list of Context structs and write them to a file
     Context* cntx = (Context*) malloc(count*sizeof(Context));
     for (int i = 0; i < count; ++i){

@@ -79,20 +79,7 @@ int* in_where(int *l, int x, int length){
     loc[j] = -1;
     return loc;
 }
-/*
-int swap(float **x, int i, int j){
-    //Swaps two elements of 2D array
-    //printf("SWAP START!\n");
-    float temp1 = x[i][0];
-    float temp2 = x[i][1];
-    x[i][0] = x[j][0];
-    x[i][1] = x[j][0];
-    x[j][0] = temp1;
-    x[j][1] = temp2;
-    //printf("SWAP SUCCESS!\n");
-    return 0;
-}
-*/
+
 
 // Function to swap two rows in a 2D array
 void swapRows(float** arr, int i, int j, int cols) {
@@ -126,24 +113,7 @@ int in_str_list(char *str, char **l, int len_l){
     }
     return -1;
 }
-/* 
-int bubble2dsort(float** unsorted, int l){
-    //Sorts based on the 2nd axis
-    int n = l;
-    int i, j;
-    //printf("the length of the array that is being sorted is %d\n",n);
-    for (i = 0; i < n-1; ++i){
-        for (j = 0; j < n-i-1; ++j){
-            //printf("i = %d, j = %d\n",i,j);
-            if (unsorted[j][1] > unsorted[j+1][1]){
-                swap(unsorted, j, j+1);
-            }
-        }
-    }
-    //printf("SORT SUCCESS!\n");
-    return 0;
-}
-*/
+
 int str_equal(char *s1, char *s2){
     int i = len(s1);
     int j = len(s2);
@@ -297,23 +267,3 @@ int str_split(char *str, char delim, char** l){
     }
     return k+1;
 }
-/*
-int super_split(char *str, char *delims, char **l){
-    int counter = 0;
-    char** holder = string_arr_mallocer(500, 100);
-    holder[0][0] = '\0';
-    for (int i = 0; delims[i] != '\0'; ++i){
-        if (holder[0][0] =='\0'){
-            int inter = str_split(str, delims[i], holder);
-            for (int j = counter, y = 0; j < counter+inter; ++j, ++y){
-                copy_str(holder[y], l[j]);
-            }
-            counter += inter;
-        }
-        else{
-            for (int j = 0; j < )
-        }
-        counter += inter;
-    }
-}
-*/

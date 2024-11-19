@@ -69,8 +69,6 @@ char* generateAnswer(char* input){
                 token_weights[i][j] = res->meaning[j];
             }
         }
-        //freeTrie(res);
-        //printf("SEARCH SUCCESS!\n");
     }
     float* total_weight = (float*) malloc(no_ans*sizeof(float));
     for (int i = 0; i < no_ans; ++i){
@@ -98,21 +96,12 @@ char* generateAnswer(char* input){
     float m = mean(total_weight, no_ans);
     float diff = unsorted[0][1] - m;
     char* ret = (char*) malloc(500*sizeof(char));
-    /*
-    for (int i = 0; i < no_ans; ++i){
-        printf("WEIGHT for ans %d -> %f\n",i,total_weight[i]);
-    }
-    */
     if (diff < std/2 || isnan(unsorted[0][1])){
         ret = "I'm sorry, but I do not know how to answer that!";
     }
     else{
         strncpy(ret,cntx[top].answer,500);
     }
-    /*
-    printf("The standard deviation of the weight vector is -> %f\n",std);
-    printf("The absolute distance between the top result weight and the mean of the weight vector is -> %f\n",(total_weight[top]-m));
-    */
     free(unsorted);
     free(total_weight);
     //printf("ANSWER-> %s\n",ret);
