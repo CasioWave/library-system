@@ -65,7 +65,30 @@ TODO
 **Search by ID:** To do this, we have implemented a binary search, in the `int idToIdx(int id)` function in `ui.c`. This returns the index of the book which has a matching ID. 
 
 #### Issuing and Returning Books
-The users (faculty/student) can issue books from, or return their issued books to the library. They want.
+The users (faculty/student) can issue books from, or return their issued books to the library.
+##### Issuing a book
+When you trigger the command to issue a book, the function calls that are executed have been explained below.
+1. `void issuePrompt(int i)`: This function takes a variable `int i` as one of the parameters, which corresponds to the index of the the book in the global `E.Books` array. This then is passed to the next function.
+2. `void issueBook(char* username, int bookID, int nweeks)`: This function is defined in `library.c` it adds a record in the `transanctions.csv`. The structure of this database has been mentioned
+below.
+
+**Note:** If a book has less than 3 copies, only faculty can issue the book. Also, there's a upper bound on the number of books that can be issued by the users, namely `STUDILIM` and `FACILIM`. Also
+the default number of weeks for which a book can be issued is defined as `STUDLIM` and `FACLIM`.
+Here are the definitions for these limits defined in `ui.c`.
+```
+#define STUDLIM 8
+#define FACLIM 16
+
+#define STUDILIM 5
+#define FACILIM 10
+```
+If the number of copies of the book being issued is less than 5, the following formula is used to calculate the number of weeks for which the book will be issued.
+```
+nWeeks = nWeeks - (5 - copies);
+```
+##### Returning a book
+huhuhuhu
+
 #### Adding, Deleting, and Editing Books
 TODO
 ## Databases
