@@ -3,6 +3,7 @@
 #include "damerau-levenshtein.h"
 #include "soundex.h"
 #include "fuzzy.h"
+#include <string.h>
 
 //Takes the sanitized list of search query terms and returns the possible synonyms - the list of returned syns is terminated by string "-1"
 int synonyms(char* thesaurus_file, char** queries, int len_query, char** ret){
@@ -60,16 +61,16 @@ int synonyms(char* thesaurus_file, char** queries, int len_query, char** ret){
         ///This triggers if it is found that all terms of this thesaurus row are present in the query
         if (check >= len_query){
             for (int i = 0; i < no_syns; ++i){
-                ret[no_ret] = syns[i];
+                strcpy(ret[no_ret], syns[i]);
                 ++no_ret;
             }
         }
     }
-    /*
+    
     for (int i = 0; i < no_ret; ++i){
-        printf("Synonym %d -> %s\n",i,ret[i]);
+        //printf("Synonym %d -> %s\n",i,ret[i]);
     }
-    */
+    
     ret[no_ret] = "-1";
     //printf("There are %d synonyms found in total\n",no_ret);
     fclose(thesaurus);

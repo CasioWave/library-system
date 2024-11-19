@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "damerau-levenshtein.h"
 #include "search-utils.h"
 #include "soundex.h"
@@ -201,6 +202,7 @@ int* fuzzy_search(char* query, int cat, char* dict_file){
         soundex_hash(strong_san_terms[i], sound_hashes[i], SOUND_LEN);
         //printf("%s\n",sound_hashes[i]);
     }
+    sound_hashes[no_terms] = "-1";
     free(strong_san_terms); //Only required for the soundex hash
     //Now that everything is prepared and sanitized, we go over the dict
     char* row = (char*) malloc(10000*sizeof(char));
@@ -280,14 +282,17 @@ int* fuzzy_search(char* query, int cat, char* dict_file){
         //printf("INDICES -> %s\n",col[2]);
         //printf("SOUNDEX -> %s\n",col[3]);
         int no_index = str_split(col[2],'-',indexes);
+        
         //printf("The split indices are ->\n");
         //for (int i = 0; i < no_index; ++i){
         //    printf("%s\n",indexes[i]);
         //}
         //Damerau-Levenshtein Test and Score allocation
         int lev = 0;
+        //printf("TOTAL TERMS -> %d\n",total_terms);
         for (int i = 0; i < total_terms; ++i){
             lev = damLevMatrix(final_terms[i], col[0]);
+            //printf("%d\n",i);
             if (lev > MAXLEV){
                 continue;
             }
@@ -326,6 +331,10 @@ int* fuzzy_search(char* query, int cat, char* dict_file){
         }
         //Soundex Test and Score allocation
         for (int i = 0; i < total_terms; ++i){
+            //printf("HERE %d - %s\n",i,sound_hashes[i]);
+            if (strcmp(sound_hashes[i], "-1") == 0){
+                break;
+            }
             if (str_equal(sound_hashes[i],col[3])){
                 //printf("SOUNDEX MATCH OF %s with %s\n",san_terms[i],col[0]);
                 int penalty = 0;
@@ -358,7 +367,7 @@ int* fuzzy_search(char* query, int cat, char* dict_file){
                 }
             }
             else{
-                continue;
+                ;
             }
         }
     }
