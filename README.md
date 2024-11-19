@@ -58,6 +58,8 @@ typedef struct {
 } User;
 ```
 
+### Chatbot
+Likhe felo
 ### Library Utilities
 #### Search
 TODO
@@ -140,5 +142,11 @@ The issued books are stored in `transanctions.csv` file. This file has the follo
 
 ## UI
 OMAGO
-## Refrences
+## Contributions
+| Debayan Sarkar     | Diptanuj Sarkar |
+| --------| --------|
+| User Interface | Chatbot |
+| Database CRUD operations | Search | 
+| Authentication | RSA |
+## References
 1. k&r
