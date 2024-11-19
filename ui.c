@@ -696,7 +696,7 @@ void drawHelp() {
     char buf[MAXCHARLIM];
     int len = 0;
     write(STDOUT_FILENO, "\x1b[32m", 5);
-    if (E.page == NORMAL) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options.\r\n");
+    if (E.page == NORMAL) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options. Press [c] to talk to the chatbot.\r\n");
     if (E.page == SEARCH) len  = snprintf(buf, sizeof(buf), "Press [ENTER] to view Book Details and additional options. Press [ESC] to go back\r\n");
     if (E.page == BOOK_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
     if (E.page == DUE_VIEW) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back\r\n");
