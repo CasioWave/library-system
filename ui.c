@@ -28,7 +28,8 @@ enum PAGES {
     SEARCH,
     DUES,
     DUE_VIEW,
-    USERS
+    USERS,
+    CHAT
 };
 typedef struct {
     char* uname;
@@ -251,8 +252,13 @@ void handleKeyPress() {
         case ':':
             if (E.page == NORMAL) {
                 searchByID();
-                break;
             }
+            break;
+        case 'c':
+            if (E.page == NORMAL) {
+                E.page = CHAT;
+            }
+            break;
         default:
             break;
     }
@@ -599,7 +605,13 @@ void drawCommand() {
     if (time(NULL) - E.commandTime < MSGTIMEOUT) {
         len = snprintf(buf, sizeof(buf), "%s\r\n", E.commandBuf);
     } else {
-        if (E.page == NORMAL) len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.\r\n");
+        if (E.page == NORMAL) {
+            if (E.userPriv == ADMIN) {
+                len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books. Press [u] to show list of users.\r\n");
+            } else {
+                len = snprintf(buf, sizeof(buf), "Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.\r\n");
+            }
+        }
         if (E.page == SEARCH) len = snprintf(buf, sizeof(buf), "\r\n");
         if (E.page == DUES) len = snprintf(buf, sizeof(buf), "\r\n");
         if (E.page == USERS) len = snprintf(buf, sizeof(buf), "Press [p] to promote the user, or [d] to demote user.\r\n");
@@ -635,6 +647,12 @@ void drawHelp() {
     if (E.page == USERS) len = snprintf(buf, sizeof(buf), "Press [ESC] to go back.\r\n");
     write(STDOUT_FILENO, buf, len);
     write(STDOUT_FILENO, "\x1b[0m", 4);
+}
+
+void drawQuit() {
+    char buf[MAXCHARLIM];
+    int len = snprintf(buf, sizeof(buf), "Press [Ctrl + Q] to exit the application.\r\n");
+    write(STDOUT_FILENO, buf, len);
 }
 
 char *commandPrompt(char *prompt) {
@@ -936,6 +954,7 @@ void refreshScreen() {
     statusBar();
     drawCommand();
     drawHelp();
+    drawQuit();
     goToxy(E.cx, E.cy - E.rowoff);
     /* write(STDOUT_FILENO, "\x1b[?25h", 6); */
     return;
@@ -944,7 +963,7 @@ void refreshScreen() {
 void init() {
     E.numResults = E.page = E.rowoff = E.cx = E.cy = 0;
     E.sIdx = NULL;
-    setCommandMsg("Press [/] to start a search. Press [m] to show issued books.");
+    setCommandMsg("Press [/] to initiate a free-text search and [s] to start an advanced field-wise search. Press [m] to show issued books.");
     E.commandTime = time(NULL);
     if (login(&E.userPriv, &E.username) == LOGIN_FAILURE) {
         printf("Login Failed!!\n");
@@ -956,7 +975,7 @@ void init() {
     if (E.userPriv == ADMIN) loadUsers(); 
     enableRawMode();
     if (getWindowSize(&E.screenrows, &E.screencols) == -1) die("getWindowSize");
-    E.screenrows -= 5;
+    E.screenrows -= 6;
     resetScreen();
 }
 
