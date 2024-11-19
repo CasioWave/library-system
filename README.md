@@ -568,8 +568,9 @@ typedef struct {
     char* uname;
     int priv;
 } Userd;
+```
 
-```c
+```C
 typedef struct {
     char* question;
     char* answer;
