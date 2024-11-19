@@ -10,7 +10,7 @@ int main(){
         int c1 = 0;
         printf("1 = Print the categories of conversation\n");
         printf("2 = Start conversation training\n");
-        printf("3 = Quit (you pussy)\n");
+        printf("3 = Quit \n");
         printf("Enter choice -> ");
         scanf("%d",&c1);
         int c;
