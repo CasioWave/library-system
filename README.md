@@ -217,7 +217,184 @@ int main() {
 This code integrates the chatbot into a simple terminal-based interface, allowing users to ask questions and receive answers.
 ### Library Utilities
 #### Search
-TODO
+### **Detailed Documentation for Fuzzy Search Code**
+
+This documentation provides an explanation of the **C code** implementing a fuzzy search algorithm. The code performs advanced, flexible searches in a dictionary database using various techniques like the Damerau-Levenshtein metric, Soundex hashing, and synonym matching. 
+
+---
+
+## **Code Functionality Overview**
+
+The code consists of the following primary components:
+
+1. **`advanced_search()`**: The main entry function for performing advanced searches. It allows searching by title, author, or publisher using fuzzy matching.
+2. **`fuzzy_search()`**: A helper function that conducts the fuzzy search for a specific category (title, author, or publisher).
+3. **Utility Functions**:
+   - **Damerau-Levenshtein Metric**: Used to compute the edit distance between strings, allowing correction of typographical errors.
+   - **Soundex**: Identifies phonetically similar words.
+   - **Synonyms Lookup**: Matches words with their synonyms using a thesaurus.
+4. **Sorting Functionality**: Results are scored and sorted by relevance.
+
+---
+
+## **How the Code Works**
+
+### **1. `advanced_search()`**
+This function takes the following arguments:
+- **`title`**: The search term for the book title.
+- **`author`**: The search term for the book author.
+- **`pub`**: The search term for the publisher.
+- **`dict_file`**: Path to the dictionary file containing indexed data.
+
+#### **Function Workflow**:
+1. **Separate Searches**:
+   - If a search term is provided for a category (e.g., title), it performs a fuzzy search using `fuzzy_search()`.
+   - Results for each category are stored in arrays (`res_title`, `res_author`, and `res_pub`).
+
+2. **Combine Results**:
+   - Combines results from all search categories by matching common indices.
+   - Calculates scores based on the relevance of results and their position in each category's list.
+
+3. **Special Cases**:
+   - If only one category has results (e.g., only the title was searched), returns the results for that category directly.
+   - If no results are found for all categories, returns an empty array.
+
+4. **Sorting**:
+   - Scores are used to sort the combined results in descending order of relevance.
+
+5. **Return**:
+   - Returns an array of indices corresponding to the most relevant matches.
+
+---
+
+### **2. `fuzzy_search()`**
+This function performs a detailed fuzzy search for a given query and category.
+
+#### **Inputs**:
+- **`query`**: The search term.
+- **`cat`**: The category to search in (`1` for title, `2` for author, `3` for publisher).
+- **`dict_file`**: The dictionary file.
+
+#### **Steps**:
+1. **Sanitization**:
+   - Prepares the query by stripping extra spaces, splitting it into terms, and sanitizing them to handle special characters.
+   - Generates **Soundex hashes** for terms to handle phonetically similar words.
+   
+2. **Synonym Expansion**:
+   - Uses a thesaurus (`thesaurus.csv`) to expand the search query with synonyms.
+
+3. **Dictionary Lookup**:
+   - Iterates through each row of the dictionary.
+   - For each term:
+     - Computes the **Damerau-Levenshtein Distance** for fuzzy matching.
+     - Compares **Soundex hashes** for phonetically similar matches.
+     - Matches terms with their synonyms.
+
+4. **Scoring**:
+   - Assigns scores to results based on:
+     - Edit distance (smaller distance → higher score).
+     - Soundex match quality.
+     - Synonym penalty for less direct matches.
+   - Combines results from all terms and calculates cumulative scores.
+
+5. **Sorting**:
+   - Results are sorted by scores in descending order for relevance.
+
+6. **Return**:
+   - Returns an array of indices representing matches, sorted by score.
+
+---
+
+## **Key Algorithms and Techniques**
+
+1. **Damerau-Levenshtein Distance**:
+   - Measures the edit distance between two strings, accounting for operations like:
+     - Insertion
+     - Deletion
+     - Substitution
+     - Transposition
+   - Allows matching terms even with typographical errors.
+
+2. **Soundex Hashing**:
+   - Encodes words into a phonetic representation.
+   - Matches words that sound similar but may have different spellings.
+
+3. **Synonyms Expansion**:
+   - Uses a thesaurus to find synonyms for search terms.
+   - Broadens the search to include related terms.
+
+4. **Sorting by Scores**:
+   - Combines scores from all matching methods (Damerau-Levenshtein, Soundex, and synonyms).
+   - Higher relevance results are ranked at the top.
+
+---
+
+## **How to Use**
+
+### **Input Requirements**
+- A **dictionary file (`dict_file`)**:
+  - Contains indexed data structured as:
+    ```
+    <token>,<type>,<indices>,<Soundex_hash>
+    ```
+    Example:
+    ```
+    "programming","title","1-2-3","P625"
+    "science","author","4-5","S520"
+    ```
+
+- A **thesaurus file (`thesaurus.csv`)**:
+  - Lists synonyms in a comma-separated format.
+    Example:
+    ```
+    "book,volume,tome"
+    "author,writer,novelist"
+    ```
+
+### **Function Calls**
+1. Include required headers and ensure linked implementations for:
+   - Damerau-Levenshtein
+   - Soundex
+   - Thesaurus lookups
+
+2. Call `advanced_search()` with appropriate parameters:
+   ```c
+   char* title = "science";
+   char* author = "";
+   char* publisher = "oxford";
+   char* dict_file = "books-clean.csv";
+
+   int* results = advanced_search(title, author, publisher, dict_file);
+
+   for (int i = 0; results[i] != -1; ++i) {
+       printf("Matched index: %d\n", results[i]);
+   }
+   free(results);
+   ```
+
+---
+
+## **Performance Considerations**
+- **Memory Usage**:
+  - Uses dynamically allocated memory for result arrays. Ensure all memory is freed after use.
+- **Time Complexity**:
+  - Depends on the size of the dictionary and the complexity of the search terms.
+  - Sorting operations and multiple scans through the dictionary can be costly for large datasets.
+
+---
+
+## **Limitations**
+1. **Dictionary Structure**:
+   - The dictionary file must follow the specified format strictly.
+2. **Synonym Coverage**:
+   - Effectiveness of synonyms depends on the quality of the thesaurus file.
+3. **Optimization**:
+   - Sorting and multiple list intersections could be optimized for performance.
+
+---
+
+## **Conclusion**
+This code provides a robust solution for implementing a fuzzy search with support for errors, synonyms, and phonetic matching. It is particularly suited for searching in large text databases like books, documents, or metadata collections.
 
 **Search by ID:** To do this, we have implemented a binary search, in the `int idToIdx(int id)` function in `ui.c`. This returns the index of the book which has a matching ID. 
 
