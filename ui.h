@@ -59,3 +59,4 @@ void loadUsers();
 void drawUsers();
 void changeUserPriv(int, int);
 void searchByID();
+void drawQuit();
