@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "rsa.h"
 #include "ui.h"
 #include "library.h"
 #include "login.h"
@@ -382,10 +383,12 @@ void loadDues() {
 void loadUsers() {
     E.nUsers = 0;
     E.users = NULL;
-    FILE* fp = fopen("users.csv", "r");
+    decryptFile("users.csv", "temp", PRIVATE_KEY, PRIME_PROD);
+    FILE* fp = fopen("temp", "r");
     if (fp == NULL) die("loadUsers");
     CSV userData = readCSV(fp);
     fclose(fp);
+    remove("temp");
     for (int i = 0; i < userData.nrows; ++i) {
         Userd user;
         user.uname = strdup(userData.data[i][0]);
@@ -443,15 +446,16 @@ void changeUserPriv(int i, int type) {
         }
     }
     E.users[i].priv = new;
-    FILE* fp = fopen("users.csv", "r");
+    decryptFile("users.csv", "temp", PRIVATE_KEY, PRIME_PROD);
+    FILE* fp = fopen("temp", "r");
     CSV userData = readCSV(fp);
     fclose(fp);
     fp = NULL;
-    fp = fopen("users.csv", "w");
+    fp = fopen("temp", "w");
     fprintf(fp, "username,password,priviledge");
     fclose(fp);
     fp = NULL;
-    fp = fopen("users.csv", "a");
+    fp = fopen("temp", "a");
     for (int j = 0; j < userData.nrows; ++j) {
         fprintf(fp, "\n%s,%s,%d", userData.data[j][0], userData.data[j][1], E.users[j].priv);
     }
@@ -460,6 +464,8 @@ void changeUserPriv(int i, int type) {
     }
     free(userData.data);
     fclose(fp);
+    encryptFile("temp", "users.csv", PUBLIC_KEY, PRIME_PROD);
+    remove("temp");
     setCommandMsg("Successfully changed account type for user: '%s'", E.users[i].uname);
 }
 
