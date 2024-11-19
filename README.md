@@ -25,6 +25,39 @@ The admin can change a user's priviledge, by demoting or promoting them.
 
 We have talked about this features in a little more detail below.
 
+### Authentication
+When the application is opened it prompts the user for their username and password. If the username is new, the application asks the user if they want to sign up, and if confirmed,
+its signs the user up, and logs them in. Or otherwise, if the username and password match one record in the database, it logs that user in. Otherwise it quits the application. Saying 
+*"Login Failed!!!"*
+
+The functions being called in this process are as follows:
+1. `int login(int* priv, char** uname)`: It prompts for a login and returns `LOGIN_FAILIURE`, if the login fails, and `LOGIN_SUCCESS` otherwise.
+2. `User* fetchUsers(char* filename)`: This reads the user data from the user and stores them in an array of `User` structs.
+3. `void registerUser(char* username, char* password)`: In case its a new user, this function writes the new user into the users database.
+
+The return values of `login` are here 
+
+```
+#define LOGIN_SUCCESS 0 
+#define LOGIN_FAILURE -1
+```
+The priviledges have the following values:
+```
+enum PRIV {
+    ADMIN=1,
+    FACULTY=2,
+    STUDENT=4
+};
+```
+The forementioned `User` struct has been defined as follows.
+```
+typedef struct {
+    char* username;
+    char* password;
+    int priv;
+} User;
+```
+
 ### Library Utilities
 #### Search
 TODO
@@ -35,8 +68,6 @@ TODO
 TODO
 #### Adding, Deleting, and Editing Books
 TODO
-### Authentication
-DODO
 ## Databases
 All the databases used in this application are in CSV format. 
 ### Books
