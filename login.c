@@ -2,6 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "rsa.h"
+
+#define PUBLIC_KEY 11
+#define PRIVATE_KEY 284531
+#define PRIME_PROD 348977
 
 #include "login.h"
 #include "utils.h"
@@ -10,11 +15,13 @@ int NUSERS = 0;
 
 // loads the users from the userdatabase and returns an array of users structs
 User* fetchUsers(char *filename) {
+    decryptFile(filename, "temp", PRIVATE_KEY, PRIME_PROD);
     FILE* fp;
-    fp = fopen(filename, "r");
+    fp = fopen("temp", "r");
     CSV userData;
     userData = readCSV(fp);
     fclose(fp);
+    remove("temp");
     if (userData.nrows == 0) return NULL;
     User* users;
     users = calloc(userData.nrows, sizeof(User));
@@ -85,7 +92,10 @@ int login(int *priv, char ** uname) {
 // register a new user by writing it to the database
 void registerUser(char* username, char* password) {
     FILE* fp = NULL;
-    fp = fopen("users.csv", "a");
+    decryptFile("users.csv", "temp", PRIVATE_KEY, PRIME_PROD);
+    fp = fopen("temp", "a");
     fprintf(fp, "\n%s,%s,%d", username, password, STUDENT);
     fclose(fp);
+    encryptFile("temp", "users.csv", PUBLIC_KEY, PRIME_PROD);
+    remove("temp");
 }
