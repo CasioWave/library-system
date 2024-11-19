@@ -161,6 +161,10 @@ int* advanced_search(char* title, char* author, char* pub, char* dict_file){
         resu[i] = (int) unsorted[i][0];
     }
     resu[res_size] = -1;
+    //free(res_title);
+    //free(res_author);
+    //free(res_pub);
+    //free(unsorted);
     return resu;
 }
 
