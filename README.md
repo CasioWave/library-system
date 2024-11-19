@@ -835,3 +835,5 @@ This program implements basic RSA encryption and decryption, providing functiona
 2. [Video Display Terminal Information](https://vt100.net/)
 3. [RSA](https://en.wikipedia.org/wiki/RSA_(cryptosystem))
 4. [Indexing Methods for Approximate String Matching](https://users.dcc.uchile.cl/~gnavarro/ps/deb01.pdf)
+5. [Damerau-Levenshtein Distance](https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance)
+6. [Soundex](https://en.wikipedia.org/wiki/Soundex)
