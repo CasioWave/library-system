@@ -25,7 +25,7 @@ The admin can change a user's priviledge, by demoting or promoting them.
 
 We have talked about this features in a little more detail below.
 
-### Authentication
+## Authentication
 When the application is opened it prompts the user for their username and password. If the username is new, the application asks the user if they want to sign up, and if confirmed,
 its signs the user up, and logs them in. Or otherwise, if the username and password match one record in the database, it logs that user in. Otherwise it quits the application. Saying 
 *"Login Failed!!!"*
@@ -58,77 +58,77 @@ typedef struct {
 } User;
 ```
 
-# **Chatbot Documentation**
+## **Chatbot Documentation**
 
-## **Overview**
+### **Overview**
 This chatbot uses a combination of natural language processing techniques and a weighted scoring mechanism to determine appropriate responses to user input. The core functionality includes tokenizing input, calculating weights for matching contexts, and selecting an answer based on statistical measures like mean and standard deviation.
 
 The chatbot leverages pre-stored context information and a trie-based search system to efficiently find relevant responses.
 
 ---
 
-## **Function Descriptions**
+### **Function Descriptions**
 
-### **`returnTokenList(char* input, int* count)`**
-#### Purpose:
+#### **`returnTokenList(char* input, int* count)`**
+##### Purpose:
 Tokenizes a user input string into sanitized tokens.
 
-#### Parameters:
+##### Parameters:
 - `char* input`: The input string provided by the user.
 - `int* count`: Pointer to an integer to store the number of tokens generated.
 
-#### Returns:
+##### Returns:
 - A dynamically allocated array of sanitized tokens.
 
-#### Workflow:
+##### Workflow:
 1. Splits the input string into tokens based on spaces.
 2. Sanitizes each token using the `sanitize` function.
 3. Returns the sanitized token list and updates `count` with the number of tokens.
 
 ---
 
-### **`mean(float* l, int le)`**
-#### Purpose:
+#### **`mean(float* l, int le)`**
+##### Purpose:
 Calculates the mean of a list of floating-point numbers.
 
-#### Parameters:
+##### Parameters:
 - `float* l`: Array of float numbers.
 - `int le`: Number of elements in the array.
 
-#### Returns:
+##### Returns:
 - The mean value of the array.
 
 ---
 
-### **`stdDeviation(float* l, int le)`**
-#### Purpose:
+#### **`stdDeviation(float* l, int le)`**
+##### Purpose:
 Computes the standard deviation of a list of floating-point numbers.
 
-#### Parameters:
+##### Parameters:
 - `float* l`: Array of float numbers.
 - `int le`: Number of elements in the array.
 
-#### Returns:
+##### Returns:
 - The standard deviation of the array.
 
-#### Workflow:
+##### Workflow:
 1. Calculates the mean of the array.
 2. Computes the squared differences from the mean.
 3. Returns the square root of the average squared difference.
 
 ---
 
-### **`generateAnswer(char* input)`**
-#### Purpose:
+#### **`generateAnswer(char* input)`**
+##### Purpose:
 Generates a response to the user's input.
 
-#### Parameters:
+##### Parameters:
 - `char* input`: The input query provided by the user.
 
-#### Returns:
+##### Returns:
 - A dynamically allocated string containing the chatbot's response.
 
-#### Workflow:
+##### Workflow:
 1. **Context and Trie Initialization**:
    - Reads context data from a binary file (`context-test.bin`).
    - Loads a trie structure from another binary file (`trie-test.bin`).
@@ -154,7 +154,7 @@ Generates a response to the user's input.
 
 ---
 
-## **How to Use**
+### **How to Use**
 
 1. **Setup**:
    - Ensure the necessary context and trie binary files (`context-test.bin` and `trie-test.bin`) are generated and accessible.
@@ -168,7 +168,7 @@ Generates a response to the user's input.
 
 ---
 
-## **Key Dependencies**
+### **Key Dependencies**
 - **Trie-based Search**: Efficiently finds matching tokens in the context database.
 - **Context Data**: Stores potential answers and their associated weights.
 - **Utility Functions**:
@@ -179,7 +179,7 @@ Generates a response to the user's input.
 
 ---
 
-## **Potential Improvements**
+### **Potential Improvements**
 1. **Memory Management**:
    - Add checks to ensure all dynamically allocated memory is freed.
    - Use modern memory allocation patterns to avoid leaks.
@@ -195,7 +195,7 @@ Generates a response to the user's input.
 
 ---
 
-## **Example Usage**
+### **Example Usage**
 ```c
 #include <stdio.h>
 #include "chatbot.h"
@@ -215,14 +215,14 @@ int main() {
 ```
 
 This code integrates the chatbot into a simple terminal-based interface, allowing users to ask questions and receive answers.
-### Library Utilities
-#### **Fuzzy Search**
+#### Library Utilities
+##### **Fuzzy Search**
 
 This documentation provides an explanation of the **C code** implementing a fuzzy search algorithm. The code performs advanced, flexible searches in a dictionary database using various techniques like the Damerau-Levenshtein metric, Soundex hashing, and synonym matching. 
 
 ---
 
-#### **Code Functionality Overview**
+##### **Code Functionality Overview**
 
 The code consists of the following primary components:
 
@@ -236,16 +236,16 @@ The code consists of the following primary components:
 
 ---
 
-#### **How the Code Works**
+##### **How the Code Works**
 
-#### **1. `advanced_search()`**
+##### **1. `advanced_search()`**
 This function takes the following arguments:
 - **`title`**: The search term for the book title.
 - **`author`**: The search term for the book author.
 - **`pub`**: The search term for the publisher.
 - **`dict_file`**: Path to the dictionary file containing indexed data.
 
-##### **Function Workflow**:
+###### **Function Workflow**:
 1. **Separate Searches**:
    - If a search term is provided for a category (e.g., title), it performs a fuzzy search using `fuzzy_search()`.
    - Results for each category are stored in arrays (`res_title`, `res_author`, and `res_pub`).
